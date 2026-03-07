@@ -300,6 +300,26 @@
       },
       "url": "https://packages.unity.com"
     },
+    "dev.bxbstudio.inputs-manager": {
+      "version": "https://github.com/BxB-Studio/Inputs-Manager.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.collections": "1.2.4",
+        "com.unity.inputsystem": "1.7.0",
+        "dev.bxbstudio.utilities": "1.1.10"
+      },
+      "hash": "bcd00be89dc77d83a3fed6511a44652c6e37952e"
+    },
+    "dev.bxbstudio.utilities": {
+      "version": "https://github.com/BxB-Studio/Unity-CSharp-Utilities.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.mathematics": "1.2.6"
+      },
+      "hash": "17ce5d43abccf974c57de3d9bb594e2345a9e2b6"
+    },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
       "depth": 0,

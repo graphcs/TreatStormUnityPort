@@ -1,0 +1,458 @@
+fileFormatVersion: 2
+guid: f3c0e7c913480674aa7f0fd720963c3a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1001364999028825215
+    second: Rex walking_0
+  - first:
+      213: -39399408312723839
+    second: Rex walking_1
+  - first:
+      213: -6596552320194784092
+    second: Rex walking_2
+  - first:
+      213: 7166478971771392393
+    second: Rex walking_3
+  - first:
+      213: 3229354010584048382
+    second: Rex walking_4
+  - first:
+      213: 6204246514606028036
+    second: Rex walking_5
+  - first:
+      213: -447090414451490649
+    second: Rex walking_6
+  - first:
+      213: -4175037351545854238
+    second: Rex walking_7
+  - first:
+      213: 7253678604535383555
+    second: Rex walking_8
+  - first:
+      213: -1503319888768918093
+    second: Rex walking_9
+  - first:
+      213: -4170825232188259321
+    second: Rex walking_10
+  - first:
+      213: -2440234015336362724
+    second: Rex walking_11
+  - first:
+      213: -1203246764632885759
+    second: Rex walking_12
+  - first:
+      213: 4876155190776223957
+    second: Rex walking_13
+  - first:
+      213: -2985456746476321340
+    second: Rex walking_14
+  - first:
+      213: -4303742577161733070
+    second: Rex walking_15
+  - first:
+      213: 317338090612605797
+    second: Rex walking_16
+  - first:
+      213: 5572632310562442426
+    second: Rex walking_17
+  - first:
+      213: -2025422987912566381
+    second: Rex walking_18
+  - first:
+      213: -309727763038319990
+    second: Rex walking_19
+  - first:
+      213: -1846540888124945888
+    second: Rex walking_20
+  - first:
+      213: -5903316254171478179
+    second: Rex walking_21
+  - first:
+      213: 7001037985013688317
+    second: Rex walking_22
+  - first:
+      213: -459714680887078703
+    second: Rex walking_23
+  - first:
+      213: -9081431639268857700
+    second: Rex walking_24
+  - first:
+      213: -7093023120430746859
+    second: Rex walking_25
+  - first:
+      213: -435271479589173741
+    second: Rex walking_26
+  - first:
+      213: 1720872956916981550
+    second: Rex walking_27
+  - first:
+      213: 3844903570452131599
+    second: Rex walking_28
+  - first:
+      213: 3483894246666700582
+    second: Rex walking_29
+  - first:
+      213: 6715523025379406433
+    second: Rex walking_30
+  - first:
+      213: -3574937242079182282
+    second: Rex walking_31
+  - first:
+      213: -4170571224145369415
+    second: Rex walking_32
+  - first:
+      213: -2928847452669579069
+    second: Rex walking_33
+  - first:
+      213: 643164892654247287
+    second: Rex walking_34
+  - first:
+      213: -6827987019381026160
+    second: Rex walking_35
+  - first:
+      213: 1806651388706763440
+    second: rex_walking_0
+  - first:
+      213: -2180631215507394230
+    second: rex_walking_1
+  - first:
+      213: -171155053308501849
+    second: rex_walking_2
+  - first:
+      213: 7872742094794909457
+    second: rex_walking_3
+  - first:
+      213: -1639752238256341320
+    second: rex_walking_4
+  - first:
+      213: 6462357872416554299
+    second: rex_walking_5
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: rex_walking_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 633
+        width: 274
+        height: 211
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b235d0bdd3821910800000000000000
+      internalID: 1806651388706763440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rex_walking_1
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 633
+        width: 274
+        height: 211
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a41bd858677dcb1e0800000000000000
+      internalID: -2180631215507394230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rex_walking_2
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 633
+        width: 274
+        height: 211
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a0a806c26fef9df0800000000000000
+      internalID: -171155053308501849
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rex_walking_3
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 633
+        width: 274
+        height: 211
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 117e3804939914d60800000000000000
+      internalID: 7872742094794909457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rex_walking_4
+      rect:
+        serializedVersion: 2
+        x: 1096
+        y: 633
+        width: 274
+        height: 211
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8be341fe60e6e39e0800000000000000
+      internalID: -1639752238256341320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rex_walking_5
+      rect:
+        serializedVersion: 2
+        x: 1370
+        y: 633
+        width: 274
+        height: 211
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3d76d4fe38eea950800000000000000
+      internalID: 6462357872416554299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: ab1aa948ca44deb4c92becd6e9cfa63d
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":6.0,"y":6.0},"gridSpriteSize":{"x":274.0,"y":211.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Rex walking_0: 1001364999028825215
+      Rex walking_1: -39399408312723839
+      Rex walking_10: -4170825232188259321
+      Rex walking_11: -2440234015336362724
+      Rex walking_12: -1203246764632885759
+      Rex walking_13: 4876155190776223957
+      Rex walking_14: -2985456746476321340
+      Rex walking_15: -4303742577161733070
+      Rex walking_16: 317338090612605797
+      Rex walking_17: 5572632310562442426
+      Rex walking_18: -2025422987912566381
+      Rex walking_19: -309727763038319990
+      Rex walking_2: -6596552320194784092
+      Rex walking_20: -1846540888124945888
+      Rex walking_21: -5903316254171478179
+      Rex walking_22: 7001037985013688317
+      Rex walking_23: -459714680887078703
+      Rex walking_24: -9081431639268857700
+      Rex walking_25: -7093023120430746859
+      Rex walking_26: -435271479589173741
+      Rex walking_27: 1720872956916981550
+      Rex walking_28: 3844903570452131599
+      Rex walking_29: 3483894246666700582
+      Rex walking_3: 7166478971771392393
+      Rex walking_30: 6715523025379406433
+      Rex walking_31: -3574937242079182282
+      Rex walking_32: -4170571224145369415
+      Rex walking_33: -2928847452669579069
+      Rex walking_34: 643164892654247287
+      Rex walking_35: -6827987019381026160
+      Rex walking_4: 3229354010584048382
+      Rex walking_5: 6204246514606028036
+      Rex walking_6: -447090414451490649
+      Rex walking_7: -4175037351545854238
+      Rex walking_8: 7253678604535383555
+      Rex walking_9: -1503319888768918093
+      rex_walking_0: 1806651388706763440
+      rex_walking_1: -2180631215507394230
+      rex_walking_2: -171155053308501849
+      rex_walking_3: 7872742094794909457
+      rex_walking_4: -1639752238256341320
+      rex_walking_5: 6462357872416554299
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
