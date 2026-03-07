@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Utilities.Inputs;
 
 namespace SnackAttack.Core
 {
@@ -49,9 +50,18 @@ namespace SnackAttack.Core
             Application.targetFrameRate = gameSettings != null ? gameSettings.targetFPS : 60;
         }
 
+        protected void Start()
+        {
+            if (!InputsManager.Started)
+                InputsManager.Start();
+        }
+
         private void Update()
         {
             EventBus.ProcessQueue();
+
+            if (InputsManager.Started)
+                InputsManager.Update();
         }
 
         private void OnDestroy()

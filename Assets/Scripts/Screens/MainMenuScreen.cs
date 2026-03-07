@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using SnackAttack.Core;
+using Utilities.Inputs;
 
 namespace SnackAttack.Screens
 {
@@ -109,19 +110,21 @@ namespace SnackAttack.Screens
 
         private void HandleKeyboardInput()
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+            if (!InputsManager.Started) return;
+
+            if (InputsManager.InputPositiveDown("Vertical"))
             {
                 ChangeSelection(-1);
             }
-            else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+            else if (InputsManager.InputNegativeDown("Vertical"))
             {
                 ChangeSelection(1);
             }
-            else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Space))
+            else if (InputsManager.InputDown("Submit"))
             {
                 ActivateSelected();
             }
-            else if (Input.GetKeyDown(KeyCode.Escape))
+            else if (InputsManager.InputDown("Cancel"))
             {
                 QuitGame();
             }
@@ -129,14 +132,14 @@ namespace SnackAttack.Screens
 
         private void HandleMouseInput()
         {
-            if (_buttonRects == null) return;
+            if (_buttonRects == null || !InputsManager.Started) return;
 
             for (int i = 0; i < _buttonRects.Length; i++)
             {
                 if (_buttonRects[i] == null) continue;
 
                 if (RectTransformUtility.RectangleContainsScreenPoint(
-                    _buttonRects[i], Input.mousePosition, null))
+                    _buttonRects[i], InputsManager.InputMousePosition(), null))
                 {
                     if (i != _selectedIndex)
                     {
@@ -145,7 +148,7 @@ namespace SnackAttack.Screens
                         PlaySound("select");
                     }
 
-                    if (Input.GetMouseButtonDown(0))
+                    if (InputsManager.InputMouseButtonPress(0))
                     {
                         ActivateSelected();
                     }
