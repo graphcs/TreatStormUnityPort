@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1b080761855cf44ba75132d2faa9684, type: 3}
+  m_Name: Level_Kitchen
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.LevelSO
+  levelNumber: 1
+  levelName: Kitchen
+  backgroundColor: {r: 1, g: 0.972549, b: 0.8627451, a: 1}
+  roundDurationSeconds: 60
+  spawnRateMultiplier: 1
+  snackPool:
+  - {fileID: 11400000, guid: 22a0f6d10efe1df4c9a7457b06ebdca2, type: 2}
+  - {fileID: 11400000, guid: 935c39f66caf1da40b5d18e91b709db8, type: 2}
+  - {fileID: 11400000, guid: c0bbb7d52f7754a48b071456340777c2, type: 2}
+  - {fileID: 11400000, guid: 0a06770ccb5566b418270f493bf6c23d, type: 2}
+  obstacles: []

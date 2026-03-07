@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09bc34c108da2f542b50371ee394167e, type: 3}
+  m_Name: CharacterDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.CharacterDatabaseSO
+  characters:
+  - {fileID: 11400000, guid: c73438775ea22034890e5341e0ddabd0, type: 2}
+  - {fileID: 11400000, guid: 4c1ef00d23dbdc64fb6cbafe89470be4, type: 2}
+  - {fileID: 11400000, guid: 7e586bb48e994c14f89a5cf0feef2cec, type: 2}
+  - {fileID: 11400000, guid: 66cf60ef82839ba4f8da278424ba1092, type: 2}
+  - {fileID: 11400000, guid: b122e08f0092dcd479b5da587ee68ddd, type: 2}
+  - {fileID: 11400000, guid: 580b7723653a1df4980fcc2c42e083a8, type: 2}

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb04b79e2055bf349af4076977bd3810, type: 3}
+  m_Name: Char_Snowy
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.CharacterSO
+  id: snowy
+  displayName: Snowy
+  breed: Husky
+  baseSpeed: 1
+  color: {r: 1, g: 1, b: 1, a: 1}
+  hitboxSize: {x: 52, y: 56}
+  gameplaySize: 216
+  runSprites:
+  - {fileID: -9137562068622790545, guid: e70a0d3f85e3b0645819bb0b2da7ea77, type: 3}
+  - {fileID: 2348926335270509144, guid: e70a0d3f85e3b0645819bb0b2da7ea77, type: 3}
+  - {fileID: 237378117029714710, guid: e70a0d3f85e3b0645819bb0b2da7ea77, type: 3}
+  eatSprites:
+  - {fileID: 6416559933289612135, guid: 7bca56a8d8180ed4cbcda5318e994b5d, type: 3}
+  - {fileID: -5352220162549477797, guid: 7bca56a8d8180ed4cbcda5318e994b5d, type: 3}
+  - {fileID: -5150967082858808796, guid: 7bca56a8d8180ed4cbcda5318e994b5d, type: 3}
+  walkSprites:
+  - {fileID: 7183393815154754888, guid: 0293f33aaafd47e4b85354af30c187ed, type: 3}
+  - {fileID: -4981384599014865164, guid: 0293f33aaafd47e4b85354af30c187ed, type: 3}
+  - {fileID: -1525923675598953400, guid: 0293f33aaafd47e4b85354af30c187ed, type: 3}
+  - {fileID: 6221771511729959140, guid: 0293f33aaafd47e4b85354af30c187ed, type: 3}
+  - {fileID: 2892923523091606132, guid: 0293f33aaafd47e4b85354af30c187ed, type: 3}
+  - {fileID: -6625193108709129222, guid: 0293f33aaafd47e4b85354af30c187ed, type: 3}
+  boostSprite: {fileID: 21300000, guid: c41c82bc0be87184b94d1a15e53d9526, type: 3}
+  portrait: {fileID: 21300000, guid: c1f5adbbcdc02494689a80a0410ab6d1, type: 3}
+  faceCameraFlight: {fileID: 21300000, guid: 0259dfc82af63aa4aa6ed944c2fe9e23, type: 3}

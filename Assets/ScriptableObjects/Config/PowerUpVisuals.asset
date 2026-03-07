@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 065eefc41060d6942b37e7b363de92ea, type: 3}
+  m_Name: PowerUpVisuals
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.PowerUpVisualsSO
+  wings:
+    enabled: 1
+    color: {r: 1, g: 0.843, b: 0.314, a: 1}
+    glowColor: {r: 1, g: 0.941, b: 0.588, a: 1}
+    opacity: 180
+    flapSpeed: 4
+    flapAmplitude: 18
+    wingWidth: 38
+    wingHeight: 50
+    featherCount: 5
+    trailParticles: 1
+    trailParticleRate: 3
+    trailParticleLifetime: 0.6
+  speedStreak:
+    enabled: 1
+    afterimageCount: 3
+    afterimageSpacing: 22
+    afterimageBaseAlpha: 90
+    streakColorBoost: {r: 0.392, g: 0.784, b: 1, a: 1}
+    streakColorSpeed: {r: 1, g: 0.784, b: 0.314, a: 1}
+    streakWidthRange: {x: 40, y: 80}
+    streakRate: 3
+    streakLifetime: 0.25
+    particleRate: 5
+    particleLifetime: 0.4
+    particleSizeRange: {x: 3, y: 7}
+  aura:
+    enabled: 1
+    pulseSpeed: 3
+    baseRadiusPadding: 15
+    pulseAmplitude: 8
+    baseAlpha: 50
+    ringWidth: 3
+    colorBoost: {r: 0.314, g: 0.627, b: 1, a: 1}
+    colorSpeedBoost: {r: 1, g: 0.784, b: 0.314, a: 1}
+    colorInvincibility: {r: 1, g: 1, b: 0.784, a: 1}
+    colorChaos: {r: 1, g: 0.235, b: 0.235, a: 1}
+    colorSlow: {r: 0.235, g: 0.706, b: 0.235, a: 1}
+    sparkleCount: 8
+    sparkleSpeed: 2.5
+    sparkleSize: 4
+  statusIndicator:
+    enabled: 1
+    barWidth: 50
+    barHeight: 6
+    barOffsetY: -12
+    iconSize: 24
+    iconOffsetY: -38
+    iconBobSpeed: 2
+    iconBobAmplitude: 3
+  snackGlow:
+    enabled: 1
+    powerupSnackIds: []
+    glowRadiusPadding: 12
+    glowPulseSpeed: 3.5
+    glowBaseAlpha: 40
+    glowPulseAlpha: 30
+    sparkleCount: 6
+    sparkleOrbitSpeed: 2
+    sparkleOrbitRadius: 20
+    sparkleSize: 3
+    beamEnabled: 1
+    beamWidth: 4
+    beamHeight: 30
+    beamAlpha: 60
+  pickupFlash:
+    enabled: 1
+    duration: 0.3
+    maxAlpha: 80
+    ringExpandSpeed: 300
+    ringMaxRadius: 60
