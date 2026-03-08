@@ -74,6 +74,13 @@ namespace SnackAttack.Screens
             base.Awake();
         }
 
+        protected override void Start()
+        {
+            base.Start();
+            _audio = GM.AudioSettings;
+            LoadFromPlayerPrefs(_audio);
+        }
+
         public override void OnEnter(Dictionary<string, object> data)
         {
             base.OnEnter(data);
