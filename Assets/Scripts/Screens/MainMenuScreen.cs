@@ -148,7 +148,7 @@ namespace SnackAttack.Screens
                         PlaySound("select");
                     }
 
-                    if (InputsManager.InputMouseButtonPress(0))
+                    if (InputsManager.InputMouseButtonUp(0))
                     {
                         ActivateSelected();
                     }

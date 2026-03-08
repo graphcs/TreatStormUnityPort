@@ -35,6 +35,9 @@ namespace SnackAttack.Screens
         protected virtual void Start()
         {
             StateMachine.RegisterScreen(screenState, this);
+            // Now that registration is done, deactivate so Update() doesn't run
+            // on inactive screens. OnEnter()/Show() will re-activate when needed.
+            gameObject.SetActive(false);
         }
 
         // --- IScreen ---

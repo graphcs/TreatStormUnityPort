@@ -73,10 +73,12 @@ namespace SnackAttack.Gameplay
             _vsAI = data.TryGetValue("vs_ai", out var ai) && (bool)ai;
 
             var charDb = GameManager.Instance.CharacterDatabase;
-            CharacterSO p1Char = data.TryGetValue("p1_character", out var p1Id)
-                ? charDb.GetById((string)p1Id) : charDb.characters[0];
-            CharacterSO p2Char = data.TryGetValue("p2_character", out var p2Id)
-                ? charDb.GetById((string)p2Id) : null;
+            CharacterSO p1Char = charDb.characters[0];
+            CharacterSO p2Char = null;
+            if (data.TryGetValue("p1_character", out var p1Val))
+                p1Char = p1Val is CharacterSO p1So ? p1So : charDb.GetById((string)p1Val);
+            if (data.TryGetValue("p2_character", out var p2Val) && p2Val != null)
+                p2Char = p2Val is CharacterSO p2So ? p2So : charDb.GetById((string)p2Val);
 
             _isSingleDog = (_mode == "single_dog");
             _currentRound = 1;

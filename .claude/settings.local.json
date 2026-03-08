@@ -16,7 +16,10 @@
       "mcp__UnityMCP__batch_execute",
       "mcp__UnityMCP__manage_gameobject",
       "mcp__UnityMCP__manage_components",
-      "mcp__UnityMCP__create_script"
+      "mcp__UnityMCP__create_script",
+      "Bash(xargs:*)",
+      "mcp__UnityMCP__manage_editor",
+      "mcp__UnityMCP__manage_texture"
     ]
   },
   "enabledMcpjsonServers": [
