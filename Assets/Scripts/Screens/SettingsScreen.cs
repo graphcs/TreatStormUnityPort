@@ -350,17 +350,19 @@ namespace SnackAttack.Screens
                 outline.effectColor = selectionColor;
         }
 
+        private readonly Vector3[] _corners = new Vector3[4];
+
         private void UpdateSelectIndicator()
         {
             if (_selectIndicator == null) return;
 
             _selectIndicator.enabled = true;
             var indicatorRect = _selectIndicator.rectTransform;
+            var parentRect = indicatorRect.parent as RectTransform;
+            if (parentRect == null) return;
 
             float offsetX = _layout != null ? _layout.settingsSelectOffsetX : 6f;
 
-            // For items 0-4, position relative to label
-            // For item 5 (Back), position relative to back text
             TMP_Text targetText;
             if (_selectedIndex < 5)
                 targetText = _labels != null && _selectedIndex < _labels.Length ? _labels[_selectedIndex] : null;
@@ -369,30 +371,31 @@ namespace SnackAttack.Screens
 
             if (targetText == null) return;
 
-            var textRect = targetText.rectTransform;
+            // Use world corners to find the text's left edge and vertical center,
+            // independent of any anchor/pivot configuration
+            targetText.rectTransform.GetWorldCorners(_corners);
+            // corners: 0=bottom-left, 1=top-left, 2=top-right, 3=bottom-right
+            float textWorldLeft = _corners[0].x;
+            float textWorldCenterY = (_corners[0].y + _corners[1].y) / 2f;
 
             if (_selectedIndex == 5)
             {
-                // Back text has anchor top-center (0.5,1), indicator has anchor top-left (0,1)
-                // Convert X from center-relative to left-relative by adding half the reference width
-                float refWidth = GM.GameSettings != null ? GM.GameSettings.referenceWidth : 1200f;
-                float selectorPadding = _layout != null ? _layout.selectorPadding : 10f;
-                float centerX = refWidth / 2f + textRect.anchoredPosition.x;
-                float iconX = centerX - (targetText.preferredWidth / 2f)
-                              - indicatorRect.sizeDelta.x - selectorPadding;
-                indicatorRect.anchoredPosition = new Vector2(iconX, textRect.anchoredPosition.y);
+                // Back is center-aligned — compute actual text left edge from preferred width
+                float textWorldCenterX = (_corners[0].x + _corners[3].x) / 2f;
+                textWorldLeft = textWorldCenterX - targetText.preferredWidth / 2f;
             }
             else
             {
-                // Items are anchored top-left, label has local X position
-                float labelX = textRect.anchoredPosition.x;
-                float iconX = labelX - indicatorRect.sizeDelta.x - offsetX;
-
-                // Y matches item row center
-                var itemRect = _itemRects[_selectedIndex];
-                float itemY = itemRect != null ? itemRect.anchoredPosition.y : textRect.anchoredPosition.y;
-                indicatorRect.anchoredPosition = new Vector2(iconX, itemY);
+                _selectIndicator.enabled = false; // For non-back items, rely on label color change instead of showing the indicator
             }
+
+            // Convert the world-space left edge to the indicator parent's local space
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                parentRect, new Vector2(textWorldLeft, textWorldCenterY), null, out localPoint);
+
+            float iconX = localPoint.x - indicatorRect.rect.width - offsetX;
+            indicatorRect.localPosition = new Vector3(iconX, localPoint.y, 0);
         }
 
         // --- Persistence ---
