@@ -46,6 +46,25 @@ MonoBehaviour:
   mainMenuY: -910
   menuOptionFontSize: 28
   selectIndicatorSize: {x: 36, y: 30}
+  settingsContainerY: -570
+  settingsContainerSize: {x: 960, y: 700}
+  settingsTitleY: -180
+  settingsTitleSize: {x: 720, y: 120}
+  settingsItemStartY: -404
+  settingsItemSpacing: 70
+  settingsLabelX: 264
+  settingsValueX: 744
+  settingsSliderWidth: 216
+  settingsSliderHeight: 20
+  settingsPercentOffsetX: 40
+  settingsBackY: -880
+  settingsFooterY: -960
+  settingsItemFontSize: 28
+  settingsBackFontSize: 32
+  settingsFooterFontSize: 18
+  settingsPercentFontSize: 18
+  settingsSelectSize: {x: 34.56, y: 28.8}
+  settingsSelectOffsetX: 6
   selectorOffset: 6
   selectorPadding: 10
   popupSize: {x: 200, y: 50}

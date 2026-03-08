@@ -38,6 +38,9 @@ namespace SnackAttack.Core
         public Color yankedRopeColor = new Color(0.706f, 0.235f, 0.235f);
         public Color shadowColor = new Color(0.196f, 0.118f, 0.078f);
 
+        [Header("Settings")]
+        public Color sliderBackground = Color.white;  // #DCA556
+
         [Header("Celebration")]
         public Color32[] festiveColors = new Color32[]
         {

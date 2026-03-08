@@ -43,6 +43,27 @@ namespace SnackAttack.Core
         public float menuOptionFontSize = 28f;
         public Vector2 selectIndicatorSize = new(36f, 30f);
 
+        [Header("Settings")]
+        public float settingsContainerY = -570f;
+        public Vector2 settingsContainerSize = new(960f, 700f);
+        public float settingsTitleY = -180f;
+        public Vector2 settingsTitleSize = new(720f, 120f);
+        public float settingsItemStartY = -404f;
+        public float settingsItemSpacing = 70f;
+        public float settingsLabelX = 264f;
+        public float settingsValueX = 744f;
+        public float settingsSliderWidth = 216f;
+        public float settingsSliderHeight = 20f;
+        public float settingsPercentOffsetX = 40f;
+        public float settingsBackY = -880f;
+        public float settingsFooterY = -960f;
+        public float settingsItemFontSize = 28f;
+        public float settingsBackFontSize = 32f;
+        public float settingsFooterFontSize = 18f;
+        public float settingsPercentFontSize = 18f;
+        public Vector2 settingsSelectSize = new(34.56f, 28.8f);
+        public float settingsSelectOffsetX = 6f;
+
         [Header("Select Indicator")]
         public float selectorOffset = 6f;
         public float selectorPadding = 10f;
