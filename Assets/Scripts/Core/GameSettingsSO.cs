@@ -16,6 +16,8 @@ namespace SnackAttack.Core
         [Header("Arena")]
         public float arenaWidth = 515f;
         public float arenaHeight = 860f;
+        [Range(0f, 1.5f)]
+        public float arenaSpawnMultiplier = 0.9f; // TODO: Implement width spawn multiplier for arenas
         public float splitScreenGap = 30f;
         public float arenaBottomMargin = 10f;
 

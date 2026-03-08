@@ -175,19 +175,21 @@ namespace SnackAttack.Gameplay
             float gap = _settings.splitScreenGap;
             float margin = _settings.arenaBottomMargin;
             float yMin = -(_settings.referenceHeight * 0.5f) + margin;
+            float mul = _settings.arenaSpawnMultiplier;
 
             if (_isSingleDog)
             {
                 var bounds1 = new Rect(-w / 2f, yMin, w, h);
+                var boundsA1 = new Rect(-w / 2f, yMin, w, h);
                 CreateArena(1, bounds1);
                 CreatePlayer(1, p1Char, bounds1, _arena1, _leashAnchor1, true, false);
             }
             else
             {
-                float totalW = w * 2f - gap;
+                float totalW = w * 2f + gap;
                 float startX = -totalW / 2f;
                 var bounds1 = new Rect(startX, yMin, w, h);
-                var bounds2 = new Rect(startX + w - gap, yMin, w, h);
+                var bounds2 = new Rect(startX + w + gap, yMin, w, h);
 
                 CreateArena(1, bounds1);
                 CreateArena(2, bounds2);
@@ -267,6 +269,9 @@ namespace SnackAttack.Gameplay
             // 4. LeashRenderer
             var leash = go.AddComponent<LeashRenderer>();
             leash.SetAnchorPoint(leashAnchor);
+
+            // 4.5. VFX Controller
+            go.AddComponent<SnackAttack.Effects.PlayerVFXController>();
 
             // 5. Input handling
             var input = go.AddComponent<PlayerInputHandler>();
@@ -503,6 +508,7 @@ namespace SnackAttack.Gameplay
             pc.ResetForNewRound();
             pc.enabled = true;
             go.GetComponent<CharacterAnimator>()?.ResetAnimation();
+            go.GetComponent<SnackAttack.Effects.PlayerVFXController>()?.ResetForNewRound();
             go.GetComponent<AIController>()?.ResetForNewRound();
         }
 

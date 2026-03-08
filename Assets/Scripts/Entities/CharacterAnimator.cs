@@ -48,6 +48,8 @@ namespace SnackAttack.Entities
         // Public accessors
         public AnimationState CurrentState => _manualOverride ?? _state;
         public bool IsEating => _state == AnimationState.Eat;
+        public Image SpriteImage => _image;
+        public Sprite CurrentSprite => _image != null ? _image.sprite : null;
 
         private void Awake()
         {
@@ -107,6 +109,7 @@ namespace SnackAttack.Entities
             _currentFrames = GetFramesForState(_manualOverride ?? _state);
             ApplySprite();
             ApplyFlightVisuals();
+            UpdateSpriteTint();
         }
 
         // --- Public API ---
@@ -305,6 +308,47 @@ namespace SnackAttack.Entities
             {
                 _imageRect.anchoredPosition = Vector2.zero;
                 _imageRect.localRotation = Quaternion.identity;
+            }
+        }
+
+        private void UpdateSpriteTint()
+        {
+            if (_image == null || playerController == null) return;
+
+            var visuals = GameManager.Instance?.PowerUpVisuals;
+            var tintParams = visuals != null ? visuals.tint : default;
+            bool tintEnabled = visuals != null && tintParams.enabled;
+
+            // Priority: Invincibility > Chaos > Slow > Boost
+            if (playerController.HasEffect(Core.EffectType.Invincibility))
+            {
+                if (tintEnabled)
+                {
+                    float rate = tintParams.invincibilityFlashRate > 0f ? tintParams.invincibilityFlashRate : 10f;
+                    bool flash = Mathf.Sin(Time.time * rate * Mathf.PI * 2f) > 0f;
+                    _image.color = flash ? tintParams.invincibilityTint : Color.white;
+                }
+                else
+                {
+                    bool flash = Mathf.Sin(Time.time * 10f * Mathf.PI * 2f) > 0f;
+                    _image.color = flash ? new Color(0.5f, 0.5f, 1f) : Color.white;
+                }
+            }
+            else if (playerController.HasEffect(Core.EffectType.Chaos))
+            {
+                _image.color = tintEnabled ? tintParams.chaosTint : new Color(1f, 0.4f, 0.4f);
+            }
+            else if (playerController.HasEffect(Core.EffectType.Slow))
+            {
+                _image.color = tintEnabled ? tintParams.slowTint : new Color(0.5f, 1f, 0.5f);
+            }
+            else if (playerController.HasEffect(Core.EffectType.Boost))
+            {
+                _image.color = tintEnabled ? tintParams.boostTint : new Color(0.5f, 0.7f, 1f);
+            }
+            else
+            {
+                _image.color = Color.white;
             }
         }
     }

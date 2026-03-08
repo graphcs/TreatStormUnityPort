@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 065eefc41060d6942b37e7b363de92ea, type: 3}
   m_Name: PowerUpVisuals
   m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.PowerUpVisualsSO
+  whiteSprite: {fileID: 21300000, guid: 2b3a8430510dffd4ea659eef4dbf676c, type: 3}
   wings:
     enabled: 1
     color: {r: 1, g: 0.843, b: 0.314, a: 1}
@@ -25,6 +26,14 @@ MonoBehaviour:
     trailParticles: 1
     trailParticleRate: 3
     trailParticleLifetime: 0.6
+    wingUpSprite: {fileID: 21300000, guid: f61b51a2b2ab78d449ad18faa5f5f012, type: 3}
+    wingDownSprite: {fileID: 21300000, guid: 136b9ba563558ae438d2f11bad599e81, type: 3}
+    shoulderOffsetYFraction: 0.05
+    shoulderOffsetXFraction: 0.24
+    flightGlowOuter: {r: 1, g: 0.843, b: 0.314, a: 0.137}
+    flightGlowInner: {r: 1, g: 0.902, b: 0.471, a: 0.216}
+    flightGlowPulseSpeed: 4
+    flightGlowRadiusFraction: 0.7
   speedStreak:
     enabled: 1
     afterimageCount: 3
@@ -62,6 +71,8 @@ MonoBehaviour:
     iconOffsetY: -38
     iconBobSpeed: 2
     iconBobAmplitude: 3
+    stackingSpacing: 44
+    barBackgroundColor: {r: 0, g: 0, b: 0, a: 0.549}
   snackGlow:
     enabled: 1
     powerupSnackIds: []
@@ -83,3 +94,20 @@ MonoBehaviour:
     maxAlpha: 80
     ringExpandSpeed: 300
     ringMaxRadius: 60
+  steam:
+    enabled: 1
+    emitRate: 2
+    lifetime: 0.8
+    sizeRange: {x: 6, y: 12}
+    growthRate: 8
+    horizontalSpread: 20
+    verticalOffset: 10
+    velocityYRange: {x: 40, y: 60}
+    velocityXRange: 15
+  tint:
+    enabled: 1
+    invincibilityTint: {r: 0.5, g: 0.5, b: 1, a: 1}
+    invincibilityFlashRate: 10
+    chaosTint: {r: 1, g: 0.4, b: 0.4, a: 1}
+    slowTint: {r: 0.5, g: 1, b: 0.5, a: 1}
+    boostTint: {r: 0.5, g: 0.7, b: 1, a: 1}

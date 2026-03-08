@@ -12,13 +12,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5d069ffc11ad814d913d97b7d05cf8d, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.GameSettingsSO
-  windowWidth: 1200
-  windowHeight: 1000
   referenceWidth: 1200
   referenceHeight: 1000
   targetFPS: 60
-  roundDuration: 10
   roundsPerGame: 1
-  arenaWidth: 426
+  arenaWidth: 500
   arenaHeight: 710
   splitScreenGap: 60
+  arenaBottomMargin: 10
+  baseMoveSpeed: 350
+  playerGroundYOffset: 230
+  flightHeightFraction: 0.35
+  flightCeilingMargin: 30
+  hoverFrequency: 3
+  hoverAmplitude: 6
+  flightLiftTarget: -15
+  flightSpringForce: 5
+  tiltVelocityThreshold: 50
+  tiltAngle: 8
+  lateralLeanMultiplier: 4
+  leanToTiltRatio: 0.3
+  tiltSmoothingRate: 8
+  hoverDecayRate: 6
+  liftDecayRate: 6
+  tiltDecayRate: 8
+  leashEffectDuration: 8
+  leashExtendFraction: 0.15
+  leashYankFraction: 0.35
+  leashAnchorPadding: 15
+  leashAnchorYOffset: 100
+  stolenBonusMultiplier: 1.5
+  playerHitboxShrink: 40
+  groundYOffset: 16
+  snackSpawnYOffset: 60
+  snackSpawnPadding: 20
+  snackSpawnVariance: 120
+  votedFoodDuration: 5
+  votedFoodSpawnInterval: 0.3
+  lightningDuration: 0.08
+  lightningSegments: 6
+  lightningJagRange: 30
+  lightningLineWidth: 5
+  lightningColorChangeProb: 0.3
+  countdownStart: 3
+  countdownTickDuration: 1
+  goDisplayDuration: 0.5
+  crowdChaosThreshold: 35
+  crowdChaosCountdown: 5
+  runFrameDuration: 0.1
+  eatFrameDuration: 0.12
+  eatAnimDuration: 0.4
+  faceCameraFrameDuration: 0.1
+  popupDuration: 1
+  popupFloatSpeed: 50
+  popupFontSize: 24
+  cloudSpeed: 8
+  cloud2SpeedMultiplier: 0.7

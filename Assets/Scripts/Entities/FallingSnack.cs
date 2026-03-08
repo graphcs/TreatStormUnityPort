@@ -77,6 +77,21 @@ namespace SnackAttack.Entities
             // Size: base size * scale
             float size = _baseSnackSize * scale;
             _rectTransform.sizeDelta = new Vector2(size, size);
+
+            // Add glow effect for power-up snacks
+            var visuals = GameManager.Instance?.PowerUpVisuals;
+            if (visuals != null && visuals.snackGlow.enabled && visuals.snackGlow.powerupSnackIds != null)
+            {
+                foreach (var id in visuals.snackGlow.powerupSnackIds)
+                {
+                    if (id == snackData.id)
+                    {
+                        var glow = gameObject.AddComponent<SnackAttack.Effects.SnackGlowEffect>();
+                        glow.Initialize(snackData.color);
+                        break;
+                    }
+                }
+            }
         }
 
         private void Update()

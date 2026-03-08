@@ -6,12 +6,17 @@ namespace SnackAttack.Core
     [CreateAssetMenu(fileName = "PowerUpVisuals", menuName = "SnackAttack/Power Up Visuals")]
     public class PowerUpVisualsSO : ScriptableObject
     {
+        [Header("Shared")]
+        public Sprite whiteSprite;
+
         public WingsParams wings;
         public SpeedStreakParams speedStreak;
         public AuraParams aura;
         public StatusIndicatorParams statusIndicator;
         public SnackGlowParams snackGlow;
         public PickupFlashParams pickupFlash;
+        public SteamParams steam;
+        public TintParams tint;
 
         [Serializable]
         public struct WingsParams
@@ -28,6 +33,14 @@ namespace SnackAttack.Core
             public bool trailParticles;
             public int trailParticleRate;
             public float trailParticleLifetime;
+            public Sprite wingUpSprite;
+            public Sprite wingDownSprite;
+            public float shoulderOffsetYFraction;
+            public float shoulderOffsetXFraction;
+            public Color flightGlowOuter;
+            public Color flightGlowInner;
+            public float flightGlowPulseSpeed;
+            public float flightGlowRadiusFraction;
         }
 
         [Serializable]
@@ -77,6 +90,8 @@ namespace SnackAttack.Core
             public float iconOffsetY;
             public float iconBobSpeed;
             public float iconBobAmplitude;
+            public float stackingSpacing;
+            public Color barBackgroundColor;
         }
 
         [Serializable]
@@ -106,6 +121,31 @@ namespace SnackAttack.Core
             public float maxAlpha;
             public float ringExpandSpeed;
             public float ringMaxRadius;
+        }
+
+        [Serializable]
+        public struct SteamParams
+        {
+            public bool enabled;
+            public int emitRate;
+            public float lifetime;
+            public Vector2 sizeRange;
+            public float growthRate;
+            public float horizontalSpread;
+            public float verticalOffset;
+            public Vector2 velocityYRange;
+            public float velocityXRange;
+        }
+
+        [Serializable]
+        public struct TintParams
+        {
+            public bool enabled;
+            public Color invincibilityTint;
+            public float invincibilityFlashRate;
+            public Color chaosTint;
+            public Color slowTint;
+            public Color boostTint;
         }
     }
 }
