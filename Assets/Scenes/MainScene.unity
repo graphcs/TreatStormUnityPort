@@ -1392,7 +1392,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 18.5, y: 70}
-  m_SizeDelta: {x: 200, y: 30}
+  m_SizeDelta: {x: 200, y: 26}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &200924764
 MonoBehaviour:
@@ -1451,7 +1451,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 1024
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -6140,6 +6140,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1170061226}
   - component: {fileID: 1170061225}
+  - component: {fileID: 1170061227}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -6184,6 +6185,31 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1170061227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1170061224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a133494025419464a9f2522f9dd31d5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Audio.AudioManager
+  musicBackground: {fileID: 8300000, guid: a026385710adaf248997e19a2ae2fdba, type: 3}
+  musicGameplay: {fileID: 8300000, guid: 8bea190ab235ac24dbd042028fe06b3f, type: 3}
+  sfxSelect: {fileID: 8300000, guid: f4c4d750642e9404da1338b33a7cb477, type: 3}
+  sfxDogEat: {fileID: 8300000, guid: dfd6a96ebe589dd42891b6960e35c9ba, type: 3}
+  sfxPointEarned: {fileID: 8300000, guid: 569a993e1e0a5b74ba0206e83e3e3a31, type: 3}
+  sfxBroccoli: {fileID: 8300000, guid: b76c81aa762261844afc9a282970dc64, type: 3}
+  sfxChilli: {fileID: 8300000, guid: ce6986d2fe319e44fa58afcd821e0159, type: 3}
+  sfxRedBull: {fileID: 8300000, guid: 1fd22c2730bdbe74a8cbf93b6692daa1, type: 3}
+  sfxThunder: {fileID: 8300000, guid: 64132057a45bbb34f897cf89242012e0, type: 3}
+  sfxCountdown23: {fileID: 8300000, guid: e26d5a022d6d19c4a88de7cc072a92a5, type: 3}
+  sfxCountdown1: {fileID: 8300000, guid: 603f38e22e7436c468b403e73b21f844, type: 3}
+  sfxStart: {fileID: 8300000, guid: 8f500f68870feef45811751bba9a332b, type: 3}
+  sfxPoolSize: 6
 --- !u!1 &1212513266
 GameObject:
   m_ObjectHideFlags: 0
