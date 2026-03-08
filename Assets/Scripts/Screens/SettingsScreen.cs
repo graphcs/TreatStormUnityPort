@@ -40,12 +40,15 @@ namespace SnackAttack.Screens
         [SerializeField] private Image _masterVolSliderFill;
         [SerializeField] private Outline _masterVolSliderOutline;
 
+        [Header("Twitch Setup (Item 5)")]
+        [SerializeField] private TMP_Text _twitchSetupLabel;
+
         [Header("Navigation")]
         [SerializeField] private TMP_Text _backText;
         [SerializeField] private Image _selectIndicator;
         [SerializeField] private TMP_Text _footerText;
 
-        private const int ITEM_COUNT = 6; // 5 items + Back
+        private const int ITEM_COUNT = 7; // 6 items + Back
         private const float VOLUME_STEP = 0.1f;
 
         private const string KEY_MUSIC_ENABLED = "sa_musicEnabled";
@@ -96,7 +99,7 @@ namespace SnackAttack.Screens
             CacheItemRects();
             _labels = new TMP_Text[]
             {
-                _musicLabel, _sfxLabel, _musicVolLabel, _sfxVolLabel, _masterVolLabel, _backText
+                _musicLabel, _sfxLabel, _musicVolLabel, _sfxVolLabel, _masterVolLabel, _twitchSetupLabel, _backText
             };
 
             _selectedIndex = 0;
@@ -192,9 +195,9 @@ namespace SnackAttack.Screens
             {
                 if (RectTransformUtility.RectangleContainsScreenPoint(_backText.rectTransform, mousePos, null))
                 {
-                    if (_selectedIndex != 5)
+                    if (_selectedIndex != 6)
                     {
-                        _selectedIndex = 5;
+                        _selectedIndex = 6;
                         RefreshAllVisuals();
                         string selectSnd = _controls != null ? _controls.selectSound : "select";
                         PlaySound(selectSnd);
@@ -210,7 +213,7 @@ namespace SnackAttack.Screens
 
         private void CacheItemRects()
         {
-            _itemRects = new RectTransform[5];
+            _itemRects = new RectTransform[6];
 
             // Items 0-4 are the parent RectTransforms of the labels
             if (_musicLabel != null) _itemRects[0] = _musicLabel.transform.parent as RectTransform;
@@ -218,6 +221,7 @@ namespace SnackAttack.Screens
             if (_musicVolLabel != null) _itemRects[2] = _musicVolLabel.transform.parent as RectTransform;
             if (_sfxVolLabel != null) _itemRects[3] = _sfxVolLabel.transform.parent as RectTransform;
             if (_masterVolLabel != null) _itemRects[4] = _masterVolLabel.transform.parent as RectTransform;
+            if (_twitchSetupLabel != null) _itemRects[5] = _twitchSetupLabel.transform.parent as RectTransform;
         }
 
         private void ChangeSelection(int direction)
@@ -245,7 +249,10 @@ namespace SnackAttack.Screens
                     EmitSettingsChanged();
                     RefreshAllVisuals();
                     break;
-                case 5: // Back
+                case 5: // Twitch Setup
+                    ChangeState(GameState.TwitchSetup);
+                    break;
+                case 6: // Back
                     GoBackToMenu();
                     break;
                 // Sliders don't respond to Enter
@@ -371,7 +378,7 @@ namespace SnackAttack.Screens
             float offsetX = _layout != null ? _layout.settingsSelectOffsetX : 6f;
 
             TMP_Text targetText;
-            if (_selectedIndex < 5)
+            if (_selectedIndex < 6)
                 targetText = _labels != null && _selectedIndex < _labels.Length ? _labels[_selectedIndex] : null;
             else
                 targetText = _backText;
@@ -385,7 +392,7 @@ namespace SnackAttack.Screens
             float textWorldLeft = _corners[0].x;
             float textWorldCenterY = (_corners[0].y + _corners[1].y) / 2f;
 
-            if (_selectedIndex == 5)
+            if (_selectedIndex == 6)
             {
                 // Back is center-aligned — compute actual text left edge from preferred width
                 float textWorldCenterX = (_corners[0].x + _corners[3].x) / 2f;

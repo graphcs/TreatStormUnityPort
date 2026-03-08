@@ -114,6 +114,7 @@ namespace SnackAttack.Gameplay
             _p1RoundWins = 0;
             _p2RoundWins = 0;
             _maxRounds = _settings.roundsPerGame;
+            _introPlayed = false;
 
             // Create GameplayRoot with RectTransform under GameplayCanvas
             _gameplayRoot = new GameObject("GameplayRoot");
@@ -660,6 +661,11 @@ namespace SnackAttack.Gameplay
                 _chatSimulator.AddMessage("System", "CROWD CHAOS INCOMING!",
                     _votingSettings.systemIncomingColor);
             }
+
+            // Notify Twitch connection status
+            var twitchCountdown = GameManager.Instance.TwitchChat;
+            if (twitchCountdown != null && twitchCountdown.IsConnected && _chatSimulator != null)
+                _chatSimulator.AddMessage("System", "TWITCH CONNECTED", new Color(0.4f, 1f, 0.4f));
         }
 
         private void ActivateCrowdChaos()
@@ -715,6 +721,11 @@ namespace SnackAttack.Gameplay
             // Setup chat vote buttons
             if (_chatSimulator != null)
                 _chatSimulator.SetVoteOptions(options, colors);
+
+            // Wire Twitch into voting
+            var twitchVote = GameManager.Instance.TwitchChat;
+            if (twitchVote != null && twitchVote.IsConnected)
+                twitchVote.SetVotingContext(_votingSystem, _chatSimulator, options);
         }
 
         private void OnVoteResolved(int winnerIdx, string winnerOption)
@@ -864,6 +875,11 @@ namespace SnackAttack.Gameplay
                 _chatSimulator.ClearVoting();
                 _chatSimulator.Hide();
             }
+
+            var twitchCleanup = GameManager.Instance.TwitchChat;
+            if (twitchCleanup != null)
+                twitchCleanup.ClearVotingContext();
+
             _votingActive = false;
         }
 

@@ -10,6 +10,7 @@ namespace SnackAttack.Core
         Settings,
         GameOver,
         UploadAvatar,
-        AvatarShowcase
+        AvatarShowcase,
+        TwitchSetup
     }
 }

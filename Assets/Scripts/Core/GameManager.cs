@@ -26,6 +26,7 @@ namespace SnackAttack.Core
         [SerializeField] private PowerUpVisualsSO powerUpVisuals;
         [SerializeField] private IntroSettingsSO introSettings;
         [SerializeField] private VotingSettingsSO votingSettings;
+        [SerializeField] private TwitchConfigSO twitchConfig;
 
         public GameSettingsSO GameSettings => gameSettings;
         public CharacterDatabaseSO CharacterDatabase => characterDatabase;
@@ -40,6 +41,18 @@ namespace SnackAttack.Core
         public PowerUpVisualsSO PowerUpVisuals => powerUpVisuals;
         public IntroSettingsSO IntroSettings => introSettings;
         public VotingSettingsSO VotingSettings => votingSettings;
+        public TwitchConfigSO TwitchConfig => twitchConfig;
+
+        private SnackAttack.Interaction.TwitchChatManager _twitchChat;
+        public SnackAttack.Interaction.TwitchChatManager TwitchChat
+        {
+            get
+            {
+                if (_twitchChat == null)
+                    _twitchChat = GetComponent<SnackAttack.Interaction.TwitchChatManager>();
+                return _twitchChat;
+            }
+        }
 
         public GameStateMachine StateMachine { get; private set; }
 
@@ -62,6 +75,22 @@ namespace SnackAttack.Core
                 StateMachine = gameObject.AddComponent<GameStateMachine>();
 
             Application.targetFrameRate = gameSettings != null ? gameSettings.targetFPS : 60;
+
+            // Auto-connect Twitch if enabled
+            if (TwitchChat != null && twitchConfig != null)
+            {
+                TwitchChat.SetConfig(twitchConfig);
+                if (PlayerPrefs.GetInt("sa_twitchEnabled", 0) == 1)
+                {
+                    string channel = PlayerPrefs.GetString("sa_twitchChannel", "");
+                    string token = PlayerPrefs.GetString("sa_twitchToken", "");
+                    if (!string.IsNullOrEmpty(channel) && !string.IsNullOrEmpty(token))
+                    {
+                        string username = PlayerPrefs.GetString("sa_twitchBotUsername", twitchConfig.defaultBotUsername);
+                        TwitchChat.Connect(channel, token, username);
+                    }
+                }
+            }
         }
 
         protected void Start()

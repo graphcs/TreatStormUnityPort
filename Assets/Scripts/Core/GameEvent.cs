@@ -46,6 +46,11 @@ namespace SnackAttack.Core
         // Voting / Crowd Chaos
         CrowdChaosStarted,
         VotingStarted,
-        VotingEnded
+        VotingEnded,
+
+        // Twitch
+        TwitchConnected,
+        TwitchDisconnected,
+        TwitchError
     }
 }
