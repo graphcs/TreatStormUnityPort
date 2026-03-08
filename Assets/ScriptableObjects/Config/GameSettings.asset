@@ -19,6 +19,6 @@ MonoBehaviour:
   targetFPS: 60
   roundDuration: 90
   roundsPerGame: 1
-  arenaWidth: 515
-  arenaHeight: 860
-  splitScreenGap: 30
+  arenaWidth: 426
+  arenaHeight: 710
+  splitScreenGap: 60

@@ -296,11 +296,10 @@ namespace SnackAttack.Screens
             var rect = go.AddComponent<RectTransform>();
             rect.SetParent(_popupContainer, false);
 
-            // Position: convert world position to canvas position
-            // Currently entities use world-space coords (will change to canvas in 17c)
-            // For now, convert: world pos * 100 gives canvas coords (since _baseMoveSpeed=3.5 = 350/100)
-            float canvasX = worldPosition.x * 100f;
-            float canvasY = worldPosition.y * 100f;
+            // Entities emit center-origin coords (GameplayRoot anchor 0.5,0.5).
+            // Convert to top-left origin for UICanvas popup placement.
+            float canvasX = worldPosition.x + 600f;
+            float canvasY = worldPosition.y - 500f;
 
             rect.anchorMin = new Vector2(0, 1);
             rect.anchorMax = new Vector2(0, 1);
@@ -324,7 +323,7 @@ namespace SnackAttack.Screens
 
             // Overflow mode
             tmp.overflowMode = TextOverflowModes.Overflow;
-            tmp.enableWordWrapping = false;
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
 
             _activePopups.Add(new PointPopup
             {

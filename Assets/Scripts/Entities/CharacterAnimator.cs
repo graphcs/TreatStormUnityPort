@@ -1,10 +1,11 @@
 using UnityEngine;
+using UnityEngine.UI;
 using SnackAttack.Core;
 
 namespace SnackAttack.Entities
 {
     /// <summary>
-    /// Code-driven animation controller that swaps SpriteRenderer.sprite
+    /// Code-driven animation controller that swaps Image.sprite on a child GO
     /// based on PlayerController state. Mirrors PyGame AnimationController.
     /// </summary>
     public class CharacterAnimator : MonoBehaviour
@@ -37,7 +38,8 @@ namespace SnackAttack.Entities
         private float _chiliTimer;
 
         // Cached
-        private SpriteRenderer _spriteRenderer;
+        private Image _image;
+        private RectTransform _imageRect;
         private CharacterSO _characterData;
         private Sprite[] _currentFrames;
         private Sprite[] _cachedFaceCameraFlightFrames;
@@ -49,9 +51,21 @@ namespace SnackAttack.Entities
 
         private void Awake()
         {
-            _spriteRenderer = GetComponent<SpriteRenderer>();
             if (playerController == null)
                 playerController = GetComponent<PlayerController>();
+
+            // Create child GO "SpriteDisplay" with Image
+            var displayGo = new GameObject("SpriteDisplay");
+            _imageRect = displayGo.AddComponent<RectTransform>();
+            _imageRect.SetParent(transform, false);
+            _imageRect.anchorMin = new Vector2(0.5f, 0.5f);
+            _imageRect.anchorMax = new Vector2(0.5f, 0.5f);
+            _imageRect.pivot = new Vector2(0.5f, 0.5f);
+            _imageRect.anchoredPosition = Vector2.zero;
+
+            _image = displayGo.AddComponent<Image>();
+            _image.preserveAspect = true;
+            _image.raycastTarget = false;
         }
 
         private void Start()
@@ -61,6 +75,10 @@ namespace SnackAttack.Entities
                 _characterData = playerController.CharacterData;
                 if (_characterData != null)
                 {
+                    // Set size from gameplay size (216 or 173)
+                    float gpSize = _characterData.gameplaySize;
+                    _imageRect.sizeDelta = new Vector2(gpSize, gpSize);
+
                     if (_characterData.faceCameraFlight != null)
                         _cachedFaceCameraFlightFrames = new[] { _characterData.faceCameraFlight };
                     if (_characterData.portrait != null)
@@ -86,9 +104,6 @@ namespace SnackAttack.Entities
 
         // --- Public API ---
 
-        /// <summary>
-        /// Trigger the eat animation (on snack collection).
-        /// </summary>
         public void TriggerEatAnimation()
         {
             if (_manualOverride.HasValue) return;
@@ -99,9 +114,6 @@ namespace SnackAttack.Entities
             _frameTimer = 0f;
         }
 
-        /// <summary>
-        /// Trigger the chili reaction animation for a given duration.
-        /// </summary>
         public void TriggerChiliAnimation(float duration)
         {
             int frameCount = _characterData.chiliReactionSprites != null
@@ -116,10 +128,6 @@ namespace SnackAttack.Entities
             _frameTimer = 0f;
         }
 
-        /// <summary>
-        /// Set a manual animation state override (for cutscenes/intros).
-        /// Pass null to clear the override.
-        /// </summary>
         public void SetManualState(AnimationState? state)
         {
             _manualOverride = state;
@@ -131,9 +139,6 @@ namespace SnackAttack.Entities
             }
         }
 
-        /// <summary>
-        /// Reset animation to idle state.
-        /// </summary>
         public void ResetAnimation()
         {
             _state = AnimationState.Idle;
@@ -250,8 +255,12 @@ namespace SnackAttack.Entities
 
         private void UpdateFlip()
         {
-            if (_spriteRenderer != null)
-                _spriteRenderer.flipX = !playerController.FacingRight;
+            if (_imageRect != null)
+            {
+                var scale = _imageRect.localScale;
+                scale.x = playerController.FacingRight ? 1f : -1f;
+                _imageRect.localScale = scale;
+            }
         }
 
         private void ApplySprite()
@@ -262,39 +271,33 @@ namespace SnackAttack.Entities
             // Idle always shows first frame of run
             if (_state == AnimationState.Idle && !_manualOverride.HasValue)
             {
-                _spriteRenderer.sprite = frames[0];
+                _image.sprite = frames[0];
                 return;
             }
 
             int frameIndex = Mathf.Min(_currentFrame, frames.Length - 1);
-            _spriteRenderer.sprite = frames[frameIndex];
+            _image.sprite = frames[frameIndex];
         }
 
         private void ApplyFlightVisuals()
         {
-            // Apply hover bob + lift offset from PlayerController flight state
-            // These offsets are applied via a local position offset on the sprite
             float hoverOffset = playerController.FlightHoverOffset;
             float liftOffset = playerController.FlightLiftOffset;
             float totalYOffset = hoverOffset + liftOffset;
 
-            // Apply tilt rotation
             float tilt = playerController.FlightTiltAngle;
 
-            // Only apply if non-trivial
-            if (Mathf.Abs(totalYOffset) > 0.001f || Mathf.Abs(tilt) > 0.5f)
+            if (Mathf.Abs(totalYOffset) > 0.1f || Mathf.Abs(tilt) > 0.5f)
             {
-                // Flight visual offset is applied to the sprite's local transform
-                // We offset the sprite visually without affecting the collider position
-                var localPos = _spriteRenderer.transform.localPosition;
+                var localPos = _imageRect.anchoredPosition;
                 localPos.y = totalYOffset;
-                _spriteRenderer.transform.localPosition = localPos;
-                _spriteRenderer.transform.localRotation = Quaternion.Euler(0f, 0f, tilt);
+                _imageRect.anchoredPosition = localPos;
+                _imageRect.localRotation = Quaternion.Euler(0f, 0f, tilt);
             }
             else
             {
-                _spriteRenderer.transform.localPosition = Vector3.zero;
-                _spriteRenderer.transform.localRotation = Quaternion.identity;
+                _imageRect.anchoredPosition = Vector2.zero;
+                _imageRect.localRotation = Quaternion.identity;
             }
         }
     }

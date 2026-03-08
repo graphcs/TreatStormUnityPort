@@ -23,7 +23,7 @@ namespace SnackAttack.Entities
         // State
         private float _decisionTimer;
         private FallingSnack _currentTarget;
-        private Vector3 _targetPosition;
+        private Vector2 _targetPosition;
         private bool _hasTarget;
 
         // Reusable collection
@@ -62,7 +62,7 @@ namespace SnackAttack.Entities
         public void ResetForNewRound()
         {
             _currentTarget = null;
-            _targetPosition = Vector3.zero;
+            _targetPosition = Vector2.zero;
             _hasTarget = false;
             _decisionTimer = 0f;
         }
@@ -90,7 +90,7 @@ namespace SnackAttack.Entities
             {
                 // Update target position if tracking a live snack
                 if (_currentTarget != null)
-                    _targetPosition = _currentTarget.transform.position;
+                    _targetPosition = _currentTarget.RectTransform.anchoredPosition;
 
                 MoveTowardTarget();
             }
@@ -104,7 +104,6 @@ namespace SnackAttack.Entities
         {
             var allSnacks = arena.ActiveSnacks;
 
-            // Filter to active, non-null snacks
             _filteredSnacks.Clear();
             for (int i = 0; i < allSnacks.Count; i++)
             {
@@ -121,16 +120,16 @@ namespace SnackAttack.Entities
 
                 if (!_player.CanMoveVertical)
                 {
-                    x = Random.Range(bounds.xMin + 0.2f, bounds.xMax - 0.2f);
-                    y = _player.transform.position.y;
+                    x = Random.Range(bounds.xMin + 20f, bounds.xMax - 20f);
+                    y = _player.RectTransform.anchoredPosition.y;
                 }
                 else
                 {
-                    x = Random.Range(bounds.xMin + 0.1f, bounds.xMax - 0.1f);
-                    y = Random.Range(bounds.yMin + 0.1f, bounds.yMax - 0.1f);
+                    x = Random.Range(bounds.xMin + 10f, bounds.xMax - 10f);
+                    y = Random.Range(bounds.yMin + 10f, bounds.yMax - 10f);
                 }
 
-                _targetPosition = new Vector3(x, y, 0f);
+                _targetPosition = new Vector2(x, y);
                 _hasTarget = true;
                 return;
             }
@@ -154,7 +153,7 @@ namespace SnackAttack.Entities
                 bestSnack = _filteredSnacks[Random.Range(0, _filteredSnacks.Count)];
 
             _currentTarget = bestSnack;
-            _targetPosition = bestSnack.transform.position;
+            _targetPosition = bestSnack.RectTransform.anchoredPosition;
             _hasTarget = true;
         }
 
@@ -163,14 +162,14 @@ namespace SnackAttack.Entities
             float score = snack.SnackData.pointValue;
 
             // Distance penalty (horizontal weighted)
-            float dx = snack.transform.position.x - _player.transform.position.x;
+            float dx = snack.RectTransform.anchoredPosition.x - _player.RectTransform.anchoredPosition.x;
             score -= Mathf.Abs(dx) * 0.5f;
 
             // Vertical reachability
             if (!_player.CanMoveVertical)
             {
-                float dy = snack.transform.position.y - _player.transform.position.y;
-                if (dy > 0.5f)
+                float dy = snack.RectTransform.anchoredPosition.y - _player.RectTransform.anchoredPosition.y;
+                if (dy > 50f)
                     score -= 200f;
                 if (dy <= 0f)
                     score += 100f;
@@ -202,12 +201,12 @@ namespace SnackAttack.Entities
 
         private void MoveTowardTarget()
         {
-            Vector3 myPos = _player.transform.position;
-            Vector3 dir = _targetPosition - myPos;
+            Vector2 myPos = _player.RectTransform.anchoredPosition;
+            Vector2 dir = _targetPosition - myPos;
             float distance = dir.magnitude;
 
-            // Reached threshold (PyGame: 5px = 0.05 units)
-            if (distance < 0.05f)
+            // Reached threshold (PyGame: 5px)
+            if (distance < 5f)
             {
                 _player.SetMoveInput(Vector2.zero);
                 return;
@@ -224,7 +223,7 @@ namespace SnackAttack.Entities
                 dir.x += Random.Range(-0.3f, 0.3f);
                 if (_player.CanMoveVertical)
                     dir.y += Random.Range(-0.3f, 0.3f);
-                float mag = new Vector2(dir.x, dir.y).magnitude;
+                float mag = dir.magnitude;
                 if (mag > 0f)
                 {
                     dir.x /= mag;
@@ -232,8 +231,7 @@ namespace SnackAttack.Entities
                 }
             }
 
-            // Do NOT flip for chaos — PlayerController.ProcessMovement() already handles chaos inversion
-            _player.SetMoveInput(new Vector2(dir.x, dir.y));
+            _player.SetMoveInput(dir);
         }
     }
 }

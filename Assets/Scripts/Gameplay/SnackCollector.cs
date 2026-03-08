@@ -5,25 +5,24 @@ using SnackAttack.Entities;
 
 namespace SnackAttack.Gameplay
 {
-    [RequireComponent(typeof(Rigidbody2D))]
     public class SnackCollector : MonoBehaviour
     {
         const float StolenBonusMultiplier = 1.5f;
 
         private PlayerController _player;
         private CharacterAnimator _animator;
-        private Rigidbody2D _rb;
+        private Arena _arena;
         private bool _inOpponentArena;
 
         private void Awake()
         {
             _player = GetComponent<PlayerController>();
             _animator = GetComponent<CharacterAnimator>();
-            _rb = GetComponent<Rigidbody2D>();
+        }
 
-            _rb.bodyType = RigidbodyType2D.Kinematic;
-            _rb.gravityScale = 0f;
-            _rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        public void SetArena(Arena arena)
+        {
+            _arena = arena;
         }
 
         public void SetInOpponentArena(bool inOpponent)
@@ -31,17 +30,39 @@ namespace SnackAttack.Gameplay
             _inOpponentArena = inOpponent;
         }
 
-        private void OnTriggerEnter2D(Collider2D other)
+        private void Update()
         {
-            if (!other.TryGetComponent<FallingSnack>(out var snack)) return;
-            if (!snack.IsActive) return;
+            if (_arena == null || _player == null) return;
 
-            CollectSnack(snack, _inOpponentArena);
+            // Build player rect from anchoredPosition, shrunk 40px/side (PyGame inflate(-80,-80))
+            Vector2 playerPos = _player.RectTransform.anchoredPosition;
+            float charSize = _player.CharacterData != null ? _player.CharacterData.gameplaySize : 216f;
+            float halfSize = charSize * 0.5f;
+            float shrink = 40f;
+            Rect playerRect = new Rect(
+                playerPos.x - halfSize + shrink,
+                playerPos.y - halfSize + shrink,
+                charSize - shrink * 2f,
+                charSize - shrink * 2f
+            );
+
+            var snacks = _arena.ActiveSnacks;
+            for (int i = snacks.Count - 1; i >= 0; i--)
+            {
+                var snack = snacks[i];
+                if (snack == null || !snack.IsActive) continue;
+
+                Rect snackRect = snack.GetCollisionRect();
+                if (playerRect.Overlaps(snackRect))
+                {
+                    CollectSnack(snack, _inOpponentArena);
+                }
+            }
         }
 
         private void CollectSnack(FallingSnack snack, bool stolen)
         {
-            Vector3 snackPosition = snack.transform.position;
+            Vector3 snackPosition = (Vector3)snack.RectTransform.anchoredPosition;
 
             SnackSO data = snack.Collect();
             if (data == null) return;

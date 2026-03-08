@@ -1,4 +1,5 @@
 using UnityEngine;
+using SnackAttack.UI;
 
 namespace SnackAttack.Entities
 {
@@ -6,11 +7,11 @@ namespace SnackAttack.Entities
     public class LeashRenderer : MonoBehaviour
     {
         [Header("Anchor")]
-        [SerializeField] private Transform anchorPoint;
+        [SerializeField] private RectTransform anchorPoint;
 
         [Header("Rope Settings")]
         [SerializeField] private int segments = 12;
-        [SerializeField] private float maxSag = 0.3f;
+        [SerializeField] private float maxSag = 30f;
         [SerializeField] private float sagFactor = 0.15f;
 
         // State colors (PyGame values)
@@ -27,40 +28,42 @@ namespace SnackAttack.Entities
         private static readonly Color ShadowColor = new(0.196f, 0.118f, 0.078f);
 
         private PlayerController _player;
-        private LineRenderer _mainLine;
-        private LineRenderer _shadowLine;
-        private GameObject _mainLineObj;
-        private GameObject _shadowLineObj;
-        private Vector3[] _points;
+        private UILineDrawer _mainLine;
+        private UILineDrawer _shadowLine;
+        private Vector2[] _points;
+        private Vector2[] _shadowPoints;
 
         private void Awake()
         {
             _player = GetComponent<PlayerController>();
-            _points = new Vector3[segments + 1];
+            _points = new Vector2[segments + 1];
+            _shadowPoints = new Vector2[segments + 1];
 
-            _shadowLineObj = new GameObject("LeashShadow");
-            _shadowLineObj.transform.SetParent(transform);
-            _shadowLine = _shadowLineObj.AddComponent<LineRenderer>();
-            ConfigureLine(_shadowLine, 0.06f, ShadowColor, -1);
+            // Create shadow UILineDrawer child
+            var shadowGo = new GameObject("LeashShadow");
+            var shadowRect = shadowGo.AddComponent<RectTransform>();
+            shadowRect.SetParent(transform, false);
+            shadowRect.anchorMin = Vector2.zero;
+            shadowRect.anchorMax = Vector2.one;
+            shadowRect.offsetMin = Vector2.zero;
+            shadowRect.offsetMax = Vector2.zero;
+            _shadowLine = shadowGo.AddComponent<UILineDrawer>();
+            _shadowLine.SetWidth(6f, 6f);
+            _shadowLine.SetLineColor(ShadowColor);
+            _shadowLine.raycastTarget = false;
 
-            _mainLineObj = new GameObject("LeashMain");
-            _mainLineObj.transform.SetParent(transform);
-            _mainLine = _mainLineObj.AddComponent<LineRenderer>();
-            ConfigureLine(_mainLine, 0.04f, NormalRopeColor, 0);
-        }
-
-        private void ConfigureLine(LineRenderer line, float width, Color color, int orderOffset)
-        {
-            line.useWorldSpace = true;
-            line.positionCount = segments + 1;
-            line.startWidth = width;
-            line.endWidth = width;
-            line.startColor = color;
-            line.endColor = color;
-            line.material = new Material(Shader.Find("Sprites/Default"));
-            line.sortingLayerName = "Default";
-            line.sortingOrder = -1 + orderOffset;
-            line.numCapVertices = 4;
+            // Create main UILineDrawer child
+            var mainGo = new GameObject("LeashMain");
+            var mainRect = mainGo.AddComponent<RectTransform>();
+            mainRect.SetParent(transform, false);
+            mainRect.anchorMin = Vector2.zero;
+            mainRect.anchorMax = Vector2.one;
+            mainRect.offsetMin = Vector2.zero;
+            mainRect.offsetMax = Vector2.zero;
+            _mainLine = mainGo.AddComponent<UILineDrawer>();
+            _mainLine.SetWidth(4f, 4f);
+            _mainLine.SetLineColor(NormalRopeColor);
+            _mainLine.raycastTarget = false;
         }
 
         private void LateUpdate()
@@ -73,9 +76,12 @@ namespace SnackAttack.Entities
 
             SetVisible(true);
 
-            Vector3 anchor = anchorPoint.position;
+            // Anchor position in GameplayRoot canvas coords
+            Vector2 anchor = anchorPoint.anchoredPosition;
+            // Collar position in GameplayRoot canvas coords
             Vector2 collarOffset = _player.CollarOffset;
-            Vector3 collar = _player.transform.position + (Vector3)collarOffset;
+            Vector2 playerPos = _player.RectTransform.anchoredPosition;
+            Vector2 collar = playerPos + collarOffset;
 
             // Update colors based on leash state
             LeashState state = _player.GetLeashState();
@@ -85,11 +91,10 @@ namespace SnackAttack.Entities
                 LeashState.Yanked => YankedRopeColor,
                 _ => NormalRopeColor
             };
-            _mainLine.startColor = ropeColor;
-            _mainLine.endColor = ropeColor;
+            _mainLine.SetLineColor(ropeColor);
 
-            // Compute parabolic curve
-            float distance = Vector3.Distance(anchor, collar);
+            // Compute parabolic curve in canvas coords
+            float distance = Vector2.Distance(anchor, collar);
             float sag = Mathf.Min(maxSag, distance * sagFactor);
 
             for (int i = 0; i <= segments; i++)
@@ -98,21 +103,17 @@ namespace SnackAttack.Entities
                 float x = Mathf.Lerp(anchor.x, collar.x, t);
                 float y = Mathf.Lerp(anchor.y, collar.y, t);
                 y -= sag * 4f * t * (1f - t);
-                _points[i] = new Vector3(x, y, 0f);
+
+                // Convert to player-local space by subtracting player position
+                _points[i] = new Vector2(x - playerPos.x, y - playerPos.y);
+                _shadowPoints[i] = new Vector2(x - playerPos.x, y - playerPos.y - 1f);
             }
 
-            _mainLine.positionCount = segments + 1;
-            _mainLine.SetPositions(_points);
-
-            // Shadow offset slightly down
-            for (int i = 0; i <= segments; i++)
-                _points[i].y -= 0.01f;
-
-            _shadowLine.positionCount = segments + 1;
-            _shadowLine.SetPositions(_points);
+            _mainLine.SetPoints(_points);
+            _shadowLine.SetPoints(_shadowPoints);
         }
 
-        public void SetAnchorPoint(Transform anchor)
+        public void SetAnchorPoint(RectTransform anchor)
         {
             anchorPoint = anchor;
         }
@@ -121,12 +122,6 @@ namespace SnackAttack.Entities
         {
             _mainLine.enabled = visible;
             _shadowLine.enabled = visible;
-        }
-
-        private void OnDestroy()
-        {
-            if (_mainLineObj != null) Destroy(_mainLineObj);
-            if (_shadowLineObj != null) Destroy(_shadowLineObj);
         }
     }
 }

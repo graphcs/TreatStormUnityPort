@@ -30,7 +30,7 @@ namespace SnackAttack.Entities
         // Movement
         private Vector2 _moveInput;
         private Vector2 _velocity;
-        private float _baseMoveSpeed = 3.5f;
+        private float _baseMoveSpeed = 350f;
         private bool _facingRight;
         private bool _isMoving;
 
@@ -68,8 +68,7 @@ namespace SnackAttack.Entities
         private float _speedMultiplier;
 
         // Cached components
-        private SpriteRenderer _spriteRenderer;
-        private BoxCollider2D _boxCollider;
+        private RectTransform _rectTransform;
 
         // Public read-only accessors
         public int PlayerNumber => playerNumber;
@@ -86,15 +85,15 @@ namespace SnackAttack.Entities
         public bool HorizontalOnly => horizontalOnly;
         public Rect ArenaBounds => _arenaBounds;
         public bool CanMoveVertical => !horizontalOnly || _hasBoosting;
+        public RectTransform RectTransform => _rectTransform;
 
-        // Collar offset from player transform center (PyGame: +70px right, +100px down from top-left)
-        // With centered pivot on ~130px sprite: x = (70 - 65) / 100 = 0.05, y = (65 - 100) / 100 = -0.35
-        public Vector2 CollarOffset => new(_facingRight ? 0.05f : -0.05f, -0.35f);
+        // Collar offset from player center (PyGame: +70px right, +100px down from top-left)
+        // With centered pivot on ~130px sprite: x = 70 - 65 = 5, y = 65 - 100 = -35
+        public Vector2 CollarOffset => new(_facingRight ? 5f : -5f, -35f);
 
         private void Awake()
         {
-            _spriteRenderer = GetComponent<SpriteRenderer>();
-            _boxCollider = GetComponent<BoxCollider2D>();
+            _rectTransform = GetComponent<RectTransform>();
             _facingRight = (playerNumber == 1);
         }
 
@@ -114,7 +113,7 @@ namespace SnackAttack.Entities
             UpdateFlightState(dt);
         }
 
-        private float CharacterWidth => characterData != null ? characterData.hitboxSize.x / 100f : 1f;
+        private float VisualSize => characterData != null ? characterData.gameplaySize : 216f;
 
         // --- Public API ---
 
@@ -137,14 +136,19 @@ namespace SnackAttack.Entities
             _arenaWidth = bounds.width;
             _arenaInitialized = true;
 
-            _leashBaseMinX = bounds.xMin;
-            _leashBaseMaxX = bounds.xMax - CharacterWidth;
+            // Center-pivot: clamp center so edges stay inside arena
+            float halfSize = VisualSize * 0.5f;
+            _leashBaseMinX = bounds.xMin + halfSize;
+            _leashBaseMaxX = bounds.xMax - halfSize;
             _leashMinX = _leashBaseMinX;
             _leashMaxX = _leashBaseMaxX;
 
-            // Position at center of arena
-            transform.position = new Vector3(bounds.center.x, bounds.center.y, 0f);
-            _restingY = transform.position.y;
+            // PyGame: top_of_sprite = arena.bottom - 230
+            // Unity center-pivot: center = -(top + halfSize) = bounds.yMin + 230 - halfSize
+            float startX = bounds.xMin + bounds.width * 0.5f;
+            float startY = bounds.yMin + 230f - halfSize;
+            _rectTransform.anchoredPosition = new Vector2(startX, startY);
+            _restingY = startY;
         }
 
         public bool ApplyEffect(EffectType type, float magnitude, float duration)
@@ -235,7 +239,7 @@ namespace SnackAttack.Entities
 
         public void YankLeash()
         {
-            float minRange = CharacterWidth * 2f;
+            float minRange = VisualSize * 2f;
             _leashMaxX = Mathf.Max(
                 _leashBaseMaxX - _arenaWidth * _leashYankFraction,
                 _leashMinX + minRange
@@ -260,9 +264,12 @@ namespace SnackAttack.Entities
 
         public void ResetForNewRound()
         {
-            // Position
-            transform.position = new Vector3(_arenaBounds.center.x, _arenaBounds.center.y, 0f);
-            _restingY = transform.position.y;
+            // Position at center-bottom of arena (230px above bottom, center-pivot adjusted)
+            float startX = _arenaBounds.xMin + _arenaBounds.width * 0.5f;
+            float halfSize = VisualSize * 0.5f;
+            float startY = _arenaBounds.yMin + 230f - halfSize;
+            _rectTransform.anchoredPosition = new Vector2(startX, startY);
+            _restingY = startY;
             _velocity = Vector2.zero;
             _moveInput = Vector2.zero;
 
@@ -312,10 +319,9 @@ namespace SnackAttack.Entities
             // Dampen upward velocity near flight ceiling
             if (CanMoveVertical && horizontalOnly && _velocity.y > 0f)
             {
-                // In Unity, positive Y is up, so upward velocity is positive
                 float ceiling = GetFlightCeiling();
-                float margin = 30f / 100f; // Convert PyGame px margin to Unity units
-                float posY = transform.position.y;
+                float margin = 30f;
+                float posY = _rectTransform.anchoredPosition.y;
                 if (posY >= ceiling - margin)
                 {
                     float damp = Mathf.Max(0f, (ceiling - posY) / margin);
@@ -334,39 +340,41 @@ namespace SnackAttack.Entities
             // Return-to-ground spring when horizontalOnly and not boosting
             if (horizontalOnly && !_hasBoosting)
             {
-                float diff = _restingY - transform.position.y;
-                if (Mathf.Abs(diff) > 0.01f)
+                float diff = _restingY - _rectTransform.anchoredPosition.y;
+                if (Mathf.Abs(diff) > 1f)
                     _velocity.y = diff * 5f;
                 else
                 {
-                    var pos = transform.position;
+                    var pos = _rectTransform.anchoredPosition;
                     pos.y = _restingY;
-                    transform.position = pos;
+                    _rectTransform.anchoredPosition = pos;
                     _velocity.y = 0f;
                 }
             }
 
             // Apply velocity
-            Vector3 newPos = transform.position + (Vector3)_velocity * dt;
+            Vector2 newPos = _rectTransform.anchoredPosition + _velocity * dt;
 
             // Clamp X to leash bounds
             newPos.x = Mathf.Clamp(newPos.x, _leashMinX, _leashMaxX);
 
-            // Clamp Y to arena bounds
-            // In Unity, Y increases upward. arenaBounds.yMin is bottom, yMax is top.
-            float minY = _arenaBounds.yMin;
-            float maxY = _arenaBounds.yMax;
+            // Clamp Y to arena bounds (center-pivot: inset by half visual size)
+            float halfSize = VisualSize * 0.5f;
+            float minY = _arenaBounds.yMin + halfSize;
+            float maxY = _arenaBounds.yMax - halfSize;
             if (horizontalOnly && CanMoveVertical)
                 maxY = GetFlightCeiling();
             newPos.y = Mathf.Clamp(newPos.y, minY, maxY);
 
-            transform.position = newPos;
+            _rectTransform.anchoredPosition = newPos;
         }
 
         private float GetFlightCeiling()
         {
-            // How high the dog can fly: fraction of resting-to-top distance
-            float maxLift = (_arenaBounds.yMax - _restingY) * _flightHeightFraction;
+            // PyGame measures lift from sprite-top to arena-top
+            // With center pivot, derive sprite-top first
+            float topOfSprite = _restingY + VisualSize * 0.5f;
+            float maxLift = (_arenaBounds.yMax - topOfSprite) * _flightHeightFraction;
             return _restingY + maxLift;
         }
 
@@ -417,15 +425,15 @@ namespace SnackAttack.Entities
             if (_hasBoosting)
             {
                 _flightTime += dt;
-                _flightHoverOffset = Mathf.Sin(_flightTime * 3f) * 6f / 100f;
-                _flightLiftOffset += (-0.15f - _flightLiftOffset) * Mathf.Min(1f, dt * 5f);
+                _flightHoverOffset = Mathf.Sin(_flightTime * 3f) * 6f;
+                _flightLiftOffset += (-15f - _flightLiftOffset) * Mathf.Min(1f, dt * 5f);
 
                 // Tilt based on velocity
                 float targetTilt = 0f;
-                if (_velocity.y > 0.5f)
-                    targetTilt = 8f;  // nose-up (positive Y = up in Unity)
-                else if (_velocity.y < -0.5f)
-                    targetTilt = -8f; // nose-down
+                if (_velocity.y > 50f)
+                    targetTilt = 8f;
+                else if (_velocity.y < -50f)
+                    targetTilt = -8f;
 
                 if (_velocity.x != 0f)
                 {

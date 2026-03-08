@@ -12,6 +12,7 @@ namespace SnackAttack.Gameplay
     {
         [SerializeField] private GameplayHUD _hud;
         [SerializeField] private GameplayBackground _background;
+        [SerializeField] private RectTransform _gameplayCanvasTransform;
 
         // Match state
         private string _mode;
@@ -41,14 +42,15 @@ namespace SnackAttack.Gameplay
 
         // Scene objects (created dynamically)
         private GameObject _gameplayRoot;
+        private RectTransform _gameplayRootRect;
         private Arena _arena1;
         private Arena _arena2;
         private GameObject _player1Go;
         private GameObject _player2Go;
         private PlayerController _player1;
         private PlayerController _player2;
-        private Transform _leashAnchor1;
-        private Transform _leashAnchor2;
+        private RectTransform _leashAnchor1;
+        private RectTransform _leashAnchor2;
 
         // Public accessors (for HUD, Step 17)
         public int CurrentRound => _currentRound;
@@ -91,12 +93,23 @@ namespace SnackAttack.Gameplay
             _p2RoundWins = 0;
             _maxRounds = GameManager.Instance.GameSettings.roundsPerGame;
 
+            // Create GameplayRoot with RectTransform under GameplayCanvas
             _gameplayRoot = new GameObject("GameplayRoot");
+            _gameplayRootRect = _gameplayRoot.AddComponent<RectTransform>();
+            _gameplayRootRect.SetParent(_gameplayCanvasTransform, false);
+            _gameplayRootRect.anchorMin = new Vector2(0.5f, 0.5f);
+            _gameplayRootRect.anchorMax = new Vector2(0.5f, 0.5f);
+            _gameplayRootRect.pivot = new Vector2(0.5f, 0.5f);
+            _gameplayRootRect.anchoredPosition = Vector2.zero;
+            _gameplayRootRect.sizeDelta = new Vector2(1200, 1000);
 
             SetupArenas(p1Char, p2Char);
 
             if (_background != null)
+            {
                 _background.Show(GetCurrentLevel());
+                _background.SetSinglePlayer(_isSingleDog);
+            }
 
             if (_hud != null)
             {
@@ -126,6 +139,7 @@ namespace SnackAttack.Gameplay
             if (_gameplayRoot != null)
                 Destroy(_gameplayRoot);
             _gameplayRoot = null;
+            _gameplayRootRect = null;
             _arena1 = _arena2 = null;
             _player1Go = _player2Go = null;
             _player1 = _player2 = null;
@@ -149,24 +163,18 @@ namespace SnackAttack.Gameplay
 
         private void SetupArenas(CharacterSO p1Char, CharacterSO p2Char)
         {
-            var settings = GameManager.Instance.GameSettings;
-            float arenaW = settings.arenaWidth / 100f;
-            float arenaH = settings.arenaHeight / 100f;
-            float gap = settings.splitScreenGap / 100f;
-
             if (_isSingleDog)
             {
-                var bounds1 = new Rect(-arenaW / 2f, -arenaH / 2f, arenaW, arenaH);
+                // Single arena centered: (1200-515)/2 = 342.5 → center-origin: 342.5-600 = -257.5
+                var bounds1 = new Rect(-257.5f, -490f, 515f, 860f);
                 CreateArena(1, bounds1);
                 CreatePlayer(1, p1Char, bounds1, _arena1, _leashAnchor1, true, false);
             }
             else
             {
-                float totalSpan = arenaW * 2f + gap;
-                float leftX = -totalSpan / 2f;
-                float rightX = leftX + arenaW + gap;
-                var bounds1 = new Rect(leftX, -arenaH / 2f, arenaW, arenaH);
-                var bounds2 = new Rect(rightX, -arenaH / 2f, arenaW, arenaH);
+                // Two arenas side by side, centered: (1200-1000)/2 = 100px offset
+                var bounds1 = new Rect(-500f, -490f, 515f, 860f);   // 100 from left
+                var bounds2 = new Rect(-15f, -490f, 515f, 860f);    // 585 from left
 
                 CreateArena(1, bounds1);
                 CreateArena(2, bounds2);
@@ -179,65 +187,79 @@ namespace SnackAttack.Gameplay
         {
             LevelSO level = GetCurrentLevel();
             var go = new GameObject($"Arena_{index}");
-            go.transform.SetParent(_gameplayRoot.transform);
+            var rect = go.AddComponent<RectTransform>();
+            rect.SetParent(_gameplayRootRect, false);
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = Vector2.zero;
 
             var arena = go.AddComponent<Arena>();
-            arena.Initialize(bounds, level, GameManager.Instance.SnackDatabase);
+            arena.Initialize(bounds, level, GameManager.Instance.SnackDatabase, _gameplayRootRect);
             arena.SetSpawningEnabled(false);
 
+            // Leash anchor parented to GameplayRoot (same coord space as players)
             var anchor = new GameObject($"LeashAnchor_{index}");
-            anchor.transform.SetParent(go.transform);
-            anchor.transform.position = new Vector3(bounds.center.x, bounds.yMin, 0f);
+            var anchorRect = anchor.AddComponent<RectTransform>();
+            anchorRect.SetParent(_gameplayRootRect, false);
+            anchorRect.anchorMin = new Vector2(0.5f, 0.5f);
+            anchorRect.anchorMax = new Vector2(0.5f, 0.5f);
+            anchorRect.pivot = new Vector2(0.5f, 0.5f);
+
+            // P1 anchor: (bounds.xMin + 15, bounds.yMin + 100)
+            // P2 anchor: (bounds.xMin + bounds.width - 15, bounds.yMin + 100)
+            float anchorX = index == 1
+                ? bounds.xMin + 15f
+                : bounds.xMin + bounds.width - 15f;
+            float anchorY = bounds.yMin + 100f;
+            anchorRect.anchoredPosition = new Vector2(anchorX, anchorY);
 
             if (index == 1)
             {
                 _arena1 = arena;
-                _leashAnchor1 = anchor.transform;
+                _leashAnchor1 = anchorRect;
             }
             else
             {
                 _arena2 = arena;
-                _leashAnchor2 = anchor.transform;
+                _leashAnchor2 = anchorRect;
             }
         }
 
         private void CreatePlayer(int playerNum, CharacterSO charSO, Rect bounds,
-            Arena arena, Transform leashAnchor, bool isSinglePlayer, bool isAI)
+            Arena arena, RectTransform leashAnchor, bool isSinglePlayer, bool isAI)
         {
             var go = new GameObject($"Player_{playerNum}");
-            go.transform.SetParent(_gameplayRoot.transform);
+            var rect = go.AddComponent<RectTransform>();
+            rect.SetParent(_gameplayRootRect, false);
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            float gpSize = charSO != null ? charSO.gameplaySize : 216f;
+            rect.sizeDelta = new Vector2(gpSize, gpSize);
 
-            // 1. SpriteRenderer (needed by CharacterAnimator.Awake)
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sortingOrder = 10;
-
-            // 2. BoxCollider2D (needed by PlayerController.Awake, SnackCollector trigger)
-            var collider = go.AddComponent<BoxCollider2D>();
-            collider.isTrigger = true;
-            if (charSO != null)
-                collider.size = new Vector2(charSO.hitboxSize.x / 100f, charSO.hitboxSize.y / 100f);
-
-            // 3. PlayerController
+            // 1. PlayerController
             var pc = go.AddComponent<PlayerController>();
             pc.Configure(charSO, playerNum, horizontal: true);
             pc.InitializeArena(bounds);
 
-            // 4. CharacterAnimator (reads PlayerController in Awake)
+            // 2. CharacterAnimator (reads PlayerController in Awake)
             go.AddComponent<CharacterAnimator>();
 
-            // 5. SnackCollector (RequireComponent adds Rigidbody2D)
-            go.AddComponent<SnackCollector>();
+            // 3. SnackCollector (manual overlap, no physics)
+            var collector = go.AddComponent<SnackCollector>();
+            collector.SetArena(arena);
 
-            // 6. LeashRenderer
+            // 4. LeashRenderer
             var leash = go.AddComponent<LeashRenderer>();
             leash.SetAnchorPoint(leashAnchor);
 
-            // 7. Input handling
+            // 5. Input handling
             var input = go.AddComponent<PlayerInputHandler>();
             bool useSinglePlayerInput = isSinglePlayer || (_vsAI && playerNum == 1);
             input.Configure(playerNum - 1, useSinglePlayerInput);
 
-            // 8. AI (if applicable)
+            // 6. AI (if applicable)
             if (isAI)
             {
                 var ai = go.AddComponent<AIController>();
@@ -311,12 +333,10 @@ namespace SnackAttack.Gameplay
             _crowdChaosTriggered = false;
             _crowdChaosCountdownActive = false;
 
-            // Reset and enable players
             ResetPlayerForRound(_player1Go, _player1);
             if (_player2 != null)
                 ResetPlayerForRound(_player2Go, _player2);
 
-            // Reset and enable arenas
             _arena1.ResetForNewRound();
             _arena1.SetSpawningEnabled(true);
             if (_arena2 != null)
@@ -337,7 +357,6 @@ namespace SnackAttack.Gameplay
         {
             _roundTimer -= Time.deltaTime;
 
-            // Crowd Chaos hook (Step 23 stub)
             float elapsed = _roundDuration - _roundTimer;
             if (!_crowdChaosTriggered && !_crowdChaosCountdownActive
                 && elapsed >= CrowdChaosElapsedThreshold)
@@ -364,19 +383,16 @@ namespace SnackAttack.Gameplay
             _crowdChaosTriggered = true;
             _crowdChaosCountdownActive = true;
             _crowdChaosCountdownTimer = CrowdChaosCountdownDuration;
-            // TODO Step 23: Show countdown overlay, determine vote type by round
         }
 
         private void ActivateCrowdChaos()
         {
             _crowdChaosCountdownActive = false;
-            // TODO Step 23: Start voting window, apply results
         }
 
         private void EndRound()
         {
             _phase = RoundPhase.RoundEnd;
-
 
             _arena1.SetSpawningEnabled(false);
             if (_arena2 != null) _arena2.SetSpawningEnabled(false);

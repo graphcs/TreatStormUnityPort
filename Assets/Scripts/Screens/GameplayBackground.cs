@@ -101,6 +101,12 @@ namespace SnackAttack.Screens
             }
         }
 
+        public void SetSinglePlayer(bool isSingle)
+        {
+            if (_battleField2 != null)
+                _battleField2.gameObject.SetActive(!isSingle);
+        }
+
         private void SetVisible(bool visible)
         {
             _canvasGroup.alpha = visible ? 1f : 0f;
