@@ -7,17 +7,23 @@ namespace SnackAttack.Gameplay
 {
     public class SnackCollector : MonoBehaviour
     {
-        const float StolenBonusMultiplier = 1.5f;
-
         private PlayerController _player;
         private CharacterAnimator _animator;
         private Arena _arena;
         private bool _inOpponentArena;
 
+        // Cached settings
+        private float _stolenBonusMultiplier;
+        private float _playerHitboxShrink;
+
         private void Awake()
         {
             _player = GetComponent<PlayerController>();
             _animator = GetComponent<CharacterAnimator>();
+
+            var settings = GameManager.Instance?.GameSettings;
+            _stolenBonusMultiplier = settings != null ? settings.stolenBonusMultiplier : 1.5f;
+            _playerHitboxShrink = settings != null ? settings.playerHitboxShrink : 40f;
         }
 
         public void SetArena(Arena arena)
@@ -34,11 +40,11 @@ namespace SnackAttack.Gameplay
         {
             if (_arena == null || _player == null) return;
 
-            // Build player rect from anchoredPosition, shrunk 40px/side (PyGame inflate(-80,-80))
+            // Build player rect from anchoredPosition, shrunk by hitboxShrink/side
             Vector2 playerPos = _player.RectTransform.anchoredPosition;
             float charSize = _player.CharacterData != null ? _player.CharacterData.gameplaySize : 216f;
             float halfSize = charSize * 0.5f;
-            float shrink = 40f;
+            float shrink = _playerHitboxShrink;
             Rect playerRect = new Rect(
                 playerPos.x - halfSize + shrink,
                 playerPos.y - halfSize + shrink,
@@ -68,7 +74,7 @@ namespace SnackAttack.Gameplay
             if (data == null) return;
 
             float points = data.pointValue;
-            if (stolen) points *= StolenBonusMultiplier;
+            if (stolen) points *= _stolenBonusMultiplier;
             points *= _player.GetScoreMultiplier();
 
             _player.AddScore(Mathf.RoundToInt(points));

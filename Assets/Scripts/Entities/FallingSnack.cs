@@ -22,6 +22,10 @@ namespace SnackAttack.Entities
         private bool _collected;
         private float _rotationSpeed;
 
+        // Cached SO values
+        private float _baseSnackSize;
+        private float _hitboxShrink;
+
         // Components
         private Image _image;
         private RectTransform _rectTransform;
@@ -39,8 +43,15 @@ namespace SnackAttack.Entities
             _groundY = groundY;
             _scale = scale;
 
-            // Random rotation (PyGame: 30-60 deg/s, random direction)
-            _rotationSpeed = Random.Range(30f, 60f) * (Random.value > 0.5f ? 1f : -1f);
+            // Cache SO values
+            var snackDb = GameManager.Instance?.SnackDatabase;
+            _baseSnackSize = snackDb != null ? snackDb.baseSnackSize : 72f;
+            _hitboxShrink = snackDb != null ? snackDb.snackHitboxShrink : 10f;
+            float rotMin = snackDb != null ? snackDb.snackRotationSpeedMin : 30f;
+            float rotMax = snackDb != null ? snackDb.snackRotationSpeedMax : 60f;
+
+            // Random rotation
+            _rotationSpeed = Random.Range(rotMin, rotMax) * (Random.value > 0.5f ? 1f : -1f);
 
             // Cache RectTransform
             _rectTransform = GetComponent<RectTransform>();
@@ -51,8 +62,8 @@ namespace SnackAttack.Entities
             _image.preserveAspect = true;
             _image.raycastTarget = false;
 
-            // Size: 72px base, scaled
-            float size = 72f * scale;
+            // Size: base size * scale
+            float size = _baseSnackSize * scale;
             _rectTransform.sizeDelta = new Vector2(size, size);
         }
 
@@ -76,15 +87,14 @@ namespace SnackAttack.Entities
         }
 
         /// <summary>
-        /// Returns a collision rect shrunk 10px per side (PyGame inflate(-20,-20)).
+        /// Returns a collision rect shrunk by hitboxShrink per side.
         /// </summary>
         public Rect GetCollisionRect()
         {
             Vector2 pos = _rectTransform.anchoredPosition;
-            float size = 72f * _scale;
+            float size = _baseSnackSize * _scale;
             float halfSize = size * 0.5f;
-            // Shrink 10px per side
-            float shrink = 10f;
+            float shrink = _hitboxShrink;
             return new Rect(
                 pos.x - halfSize + shrink,
                 pos.y - halfSize + shrink,

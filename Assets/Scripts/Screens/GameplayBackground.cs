@@ -28,7 +28,11 @@ namespace SnackAttack.Screens
         private RectTransform _cloud2Rect;
         private float _cloud1X;
         private float _cloud2X;
-        private const float CloudSpeed = 8f; // px/s, gentle drift
+
+        // Cached settings
+        private float _cloudSpeed;
+        private float _cloud2SpeedMultiplier;
+        private float _wrapWidth;
 
         private void Awake()
         {
@@ -47,6 +51,12 @@ namespace SnackAttack.Screens
         public void Show(LevelSO level)
         {
             SetVisible(true);
+
+            // Cache settings
+            var settings = GameManager.Instance?.GameSettings;
+            _cloudSpeed = settings != null ? settings.cloudSpeed : 8f;
+            _cloud2SpeedMultiplier = settings != null ? settings.cloud2SpeedMultiplier : 0.7f;
+            _wrapWidth = settings != null ? settings.referenceWidth : 1200f;
 
             // Swap battlefield sprites if level provides them
             if (level != null && level.battlefieldSprite != null)
@@ -79,10 +89,9 @@ namespace SnackAttack.Screens
 
             if (_cloud1Rect != null)
             {
-                _cloud1X += CloudSpeed * dt;
-                // Wrap around when cloud drifts off right side
+                _cloud1X += _cloudSpeed * dt;
                 float cloudWidth = _cloud1Rect.sizeDelta.x;
-                if (_cloud1X > 1200f + cloudWidth)
+                if (_cloud1X > _wrapWidth + cloudWidth)
                     _cloud1X = -cloudWidth;
                 var pos = _cloud1Rect.anchoredPosition;
                 pos.x = _cloud1X;
@@ -91,10 +100,10 @@ namespace SnackAttack.Screens
 
             if (_cloud2Rect != null)
             {
-                _cloud2X -= CloudSpeed * 0.7f * dt; // Cloud 2 drifts opposite, slower
+                _cloud2X -= _cloudSpeed * _cloud2SpeedMultiplier * dt;
                 float cloudWidth = _cloud2Rect.sizeDelta.x;
                 if (_cloud2X < -cloudWidth)
-                    _cloud2X = 1200f + cloudWidth;
+                    _cloud2X = _wrapWidth + cloudWidth;
                 var pos = _cloud2Rect.anchoredPosition;
                 pos.x = _cloud2X;
                 _cloud2Rect.anchoredPosition = pos;

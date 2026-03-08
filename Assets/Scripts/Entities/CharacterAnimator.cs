@@ -20,13 +20,13 @@ namespace SnackAttack.Entities
             FaceCameraFlight
         }
 
-        // Timing constants (from PyGame SpriteSheetLoader)
-        private const float RunFrameDuration = 0.1f;       // 10 FPS
-        private const float EatFrameDuration = 0.12f;       // ~8.3 FPS
-        private const float EatAnimationDuration = 0.4f;    // Total eat time
-        private const float FaceCameraFrameDuration = 0.1f;  // Face camera timing
-
         [SerializeField] private PlayerController playerController;
+
+        // Cached timing values (from GameSettingsSO)
+        private float _runFrameDuration;
+        private float _eatFrameDuration;
+        private float _eatAnimationDuration;
+        private float _faceCameraFrameDuration;
 
         // State
         private AnimationState _state = AnimationState.Idle;
@@ -53,6 +53,13 @@ namespace SnackAttack.Entities
         {
             if (playerController == null)
                 playerController = GetComponent<PlayerController>();
+
+            // Cache timing from SO
+            var settings = GameManager.Instance?.GameSettings;
+            _runFrameDuration = settings != null ? settings.runFrameDuration : 0.1f;
+            _eatFrameDuration = settings != null ? settings.eatFrameDuration : 0.12f;
+            _eatAnimationDuration = settings != null ? settings.eatAnimDuration : 0.4f;
+            _faceCameraFrameDuration = settings != null ? settings.faceCameraFrameDuration : 0.1f;
 
             // Create child GO "SpriteDisplay" with Image
             var displayGo = new GameObject("SpriteDisplay");
@@ -109,7 +116,7 @@ namespace SnackAttack.Entities
             if (_manualOverride.HasValue) return;
 
             _state = AnimationState.Eat;
-            _eatTimer = EatAnimationDuration;
+            _eatTimer = _eatAnimationDuration;
             _currentFrame = 0;
             _frameTimer = 0f;
         }
@@ -192,7 +199,7 @@ namespace SnackAttack.Entities
                 }
                 else
                 {
-                    AdvanceFrame(dt, EatFrameDuration);
+                    AdvanceFrame(dt, _eatFrameDuration);
                 }
                 return;
             }
@@ -207,7 +214,7 @@ namespace SnackAttack.Entities
             }
 
             if (_state == AnimationState.Run)
-                AdvanceFrame(dt, RunFrameDuration);
+                AdvanceFrame(dt, _runFrameDuration);
         }
 
         private void AdvanceFrame(float dt, float frameDuration)
@@ -228,11 +235,11 @@ namespace SnackAttack.Entities
         {
             return state switch
             {
-                AnimationState.Run => RunFrameDuration,
-                AnimationState.Eat => EatFrameDuration,
+                AnimationState.Run => _runFrameDuration,
+                AnimationState.Eat => _eatFrameDuration,
                 AnimationState.ChiliReaction => _chiliFrameDuration,
-                AnimationState.FaceCamera => FaceCameraFrameDuration,
-                AnimationState.FaceCameraFlight => FaceCameraFrameDuration,
+                AnimationState.FaceCamera => _faceCameraFrameDuration,
+                AnimationState.FaceCameraFlight => _faceCameraFrameDuration,
                 _ => 0f
             };
         }

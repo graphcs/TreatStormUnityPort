@@ -14,6 +14,15 @@ namespace SnackAttack.Core
         public int maxActive = 10;
         public float acceleration = 0.9f;
 
+        [Header("Snack Physics")]
+        public float baseFallSpeed = 180f;
+        public float fallSpeedPerLevel = 30f;
+        public float spawnIntervalDecrement = 0.15f;
+        public float baseSnackSize = 72f;
+        public float snackHitboxShrink = 10f;
+        public float snackRotationSpeedMin = 30f;
+        public float snackRotationSpeedMax = 60f;
+
         public int Count => snacks.Count;
 
         public SnackSO GetById(string id)

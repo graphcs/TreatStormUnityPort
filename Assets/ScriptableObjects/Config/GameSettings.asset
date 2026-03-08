@@ -17,7 +17,7 @@ MonoBehaviour:
   referenceWidth: 1200
   referenceHeight: 1000
   targetFPS: 60
-  roundDuration: 90
+  roundDuration: 10
   roundsPerGame: 1
   arenaWidth: 426
   arenaHeight: 710

@@ -44,15 +44,6 @@ namespace SnackAttack.Screens
         [Header("Font")]
         [SerializeField] private TMP_FontAsset _daydreamFont;
 
-        // Colors matching PyGame
-        private static readonly Color TimerColor = new Color32(77, 43, 31, 255);     // #4D2B1F
-        private static readonly Color ScoreColor = new Color32(147, 76, 48, 255);    // #934C30
-        private static readonly Color CountdownColor = new Color32(251, 205, 100, 255); // #FBCD64
-        private static readonly Color PopupPositiveColor = new Color32(81, 180, 71, 255); // #51B447
-        private static readonly Color PopupNegativeColor = new Color32(222, 97, 91, 255); // #DE615B
-        private static readonly Color PopupOutlineColor = Color.white;
-        private static readonly Color PauseTitleColor = new Color32(255, 200, 0, 255); // #FFC800 (PyGame exact)
-
         private CanvasGroup _canvasGroup;
         private RoundManager _roundManager;
         private bool _initialized;
@@ -66,9 +57,12 @@ namespace SnackAttack.Screens
 
         // Popup tracking
         private readonly List<PointPopup> _activePopups = new();
-        private const float PopupDuration = 1.0f;
-        private const float PopupFloatSpeed = 50f;
-        private const int PopupFontSize = 24;
+
+        // Cached settings
+        private GameSettingsSO _settings;
+        private UIColorsSO _colors;
+        private UILayoutSO _layout;
+        private ControlsSO _controls;
 
         private struct PointPopup
         {
@@ -97,6 +91,13 @@ namespace SnackAttack.Screens
             _goTimer = 0f;
             _isPaused = false;
             if (_pauseOverlay != null) _pauseOverlay.SetActive(false);
+
+            // Cache settings
+            var gm = GameManager.Instance;
+            _settings = gm.GameSettings;
+            _colors = gm.UIColors;
+            _layout = gm.UILayout;
+            _controls = gm.Controls;
 
             // Set player names
             var p1 = rm.Player1;
@@ -171,8 +172,12 @@ namespace SnackAttack.Screens
             if (!_initialized || _roundManager == null)
                 return;
 
+            string cancelAction = _controls != null ? _controls.cancelAction : "Cancel";
+            string submitAction = _controls != null ? _controls.submitAction : "Submit";
+            string quitAction = _controls != null ? _controls.quitAction : "Quit";
+
             // Pause input (Input.GetKeyDown works at timeScale=0)
-            if (InputsManager.InputDown("Cancel"))
+            if (InputsManager.InputDown(cancelAction))
             {
                 if (_isPaused) Resume();
                 else Pause();
@@ -181,18 +186,19 @@ namespace SnackAttack.Screens
 
             if (_isPaused)
             {
-                if (InputsManager.InputDown("Submit")) Resume();
-                else if (InputsManager.InputDown("Quit")) QuitToMenu();
+                if (InputsManager.InputDown(submitAction)) Resume();
+                else if (InputsManager.InputDown(quitAction)) QuitToMenu();
                 return; // skip all HUD updates while paused
             }
 
             var phase = _roundManager.CurrentPhase;
 
             // Detect phase transition from Countdown to Active -> show "GO!"
+            float goDisplayDuration = _settings != null ? _settings.goDisplayDuration : 0.5f;
             if (_lastPhase == RoundPhase.Countdown && phase == RoundPhase.Active)
             {
                 _showingGo = true;
-                _goTimer = 0.5f;
+                _goTimer = goDisplayDuration;
                 _countdownText.text = "GO!";
                 _countdownText.gameObject.SetActive(true);
             }
@@ -279,8 +285,6 @@ namespace SnackAttack.Screens
             }
             else
             {
-                // PyGame: "# vs #" with mixed font sizes
-                // TMP rich text: large numbers, small "vs"
                 int p1w = _roundManager.P1RoundWins;
                 int p2w = _roundManager.P2RoundWins;
                 _winsText.text = $"<size=28>{p1w}</size>  <size=14>vs</size>  <size=28>{p2w}</size>";
@@ -320,36 +324,42 @@ namespace SnackAttack.Screens
             if (_popupContainer == null)
                 return;
 
+            float popupDuration = _settings != null ? _settings.popupDuration : 1.0f;
+            int popupFontSize = _settings != null ? _settings.popupFontSize : 24;
+            Vector2 popupSize = _layout != null ? _layout.popupSize : new Vector2(200f, 50f);
+            float outlineWidth = _layout != null ? _layout.outlineWidth : 0.25f;
+            Color positiveColor = _colors != null ? _colors.popupPositiveColor : new Color32(81, 180, 71, 255);
+            Color negativeColor = _colors != null ? _colors.popupNegativeColor : new Color32(222, 97, 91, 255);
+            Color outlineColor = _colors != null ? _colors.popupOutlineColor : Color.white;
+
             var go = new GameObject("PointPopup");
             var rect = go.AddComponent<RectTransform>();
             rect.SetParent(_popupContainer, false);
 
             // Entities emit center-origin coords (GameplayRoot anchor 0.5,0.5).
             // Convert to top-left origin for UICanvas popup placement.
-            float canvasX = worldPosition.x + 600f;
-            float canvasY = worldPosition.y - 500f;
+            float halfRefW = _settings != null ? _settings.referenceWidth * 0.5f : 600f;
+            float halfRefH = _settings != null ? _settings.referenceHeight * 0.5f : 500f;
+            float canvasX = worldPosition.x + halfRefW;
+            float canvasY = worldPosition.y - halfRefH;
 
             rect.anchorMin = new Vector2(0, 1);
             rect.anchorMax = new Vector2(0, 1);
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = new Vector2(canvasX, canvasY);
-            rect.sizeDelta = new Vector2(200, 50);
+            rect.sizeDelta = popupSize;
 
             var tmp = go.AddComponent<TextMeshProUGUI>();
             tmp.text = points >= 0 ? $"+{points}" : $"{points}";
             tmp.font = _daydreamFont;
-            tmp.fontSize = PopupFontSize;
+            tmp.fontSize = popupFontSize;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.raycastTarget = false;
 
-            // Color: green for positive, red for negative (matching PyGame)
-            tmp.color = points >= 0 ? PopupPositiveColor : PopupNegativeColor;
+            tmp.color = points >= 0 ? positiveColor : negativeColor;
+            tmp.outlineWidth = outlineWidth;
+            tmp.outlineColor = outlineColor;
 
-            // White outline (matching PyGame's 16-pass outline render)
-            tmp.outlineWidth = 0.25f;
-            tmp.outlineColor = PopupOutlineColor;
-
-            // Overflow mode
             tmp.overflowMode = TextOverflowModes.Overflow;
             tmp.textWrappingMode = TextWrappingModes.NoWrap;
 
@@ -358,23 +368,22 @@ namespace SnackAttack.Screens
                 go = go,
                 text = tmp,
                 rect = rect,
-                timer = PopupDuration
+                timer = popupDuration
             });
         }
 
         private void UpdatePopups()
         {
             float dt = Time.deltaTime;
+            float floatSpeed = _settings != null ? _settings.popupFloatSpeed : 50f;
 
             for (int i = _activePopups.Count - 1; i >= 0; i--)
             {
                 var popup = _activePopups[i];
                 popup.timer -= dt;
 
-                // Float upward (in canvas space, upward = more positive Y when anchor is top-left)
-                // But since anchor is (0,1) and Y goes negative downward, "upward" means less negative
                 var pos = popup.rect.anchoredPosition;
-                pos.y += PopupFloatSpeed * dt;
+                pos.y += floatSpeed * dt;
                 popup.rect.anchoredPosition = pos;
 
                 _activePopups[i] = popup;

@@ -35,10 +35,8 @@ namespace SnackAttack.Gameplay
 
         // Crowd Chaos stub (Step 23)
         private bool _crowdChaosTriggered;
-        private const float CrowdChaosElapsedThreshold = 35f;
-        private const float CrowdChaosCountdownDuration = 5f;
-        private float _crowdChaosCountdownTimer;
         private bool _crowdChaosCountdownActive;
+        private float _crowdChaosCountdownTimer;
 
         // Scene objects (created dynamically)
         private GameObject _gameplayRoot;
@@ -51,6 +49,9 @@ namespace SnackAttack.Gameplay
         private PlayerController _player2;
         private RectTransform _leashAnchor1;
         private RectTransform _leashAnchor2;
+
+        // Cached settings
+        private GameSettingsSO _settings;
 
         // Public accessors (for HUD, Step 17)
         public int CurrentRound => _currentRound;
@@ -75,6 +76,8 @@ namespace SnackAttack.Gameplay
 
         public void OnEnter(Dictionary<string, object> data)
         {
+            _settings = GameManager.Instance.GameSettings;
+
             _mode = data.TryGetValue("mode", out var m) ? (string)m : "1p";
             _vsAI = data.TryGetValue("vs_ai", out var ai) && (bool)ai;
 
@@ -91,7 +94,7 @@ namespace SnackAttack.Gameplay
             _currentLevelNumber = 1;
             _p1RoundWins = 0;
             _p2RoundWins = 0;
-            _maxRounds = GameManager.Instance.GameSettings.roundsPerGame;
+            _maxRounds = _settings.roundsPerGame;
 
             // Create GameplayRoot with RectTransform under GameplayCanvas
             _gameplayRoot = new GameObject("GameplayRoot");
@@ -101,7 +104,7 @@ namespace SnackAttack.Gameplay
             _gameplayRootRect.anchorMax = new Vector2(0.5f, 0.5f);
             _gameplayRootRect.pivot = new Vector2(0.5f, 0.5f);
             _gameplayRootRect.anchoredPosition = Vector2.zero;
-            _gameplayRootRect.sizeDelta = new Vector2(1200, 1000);
+            _gameplayRootRect.sizeDelta = new Vector2(_settings.referenceWidth, _settings.referenceHeight);
 
             SetupArenas(p1Char, p2Char);
 
@@ -118,9 +121,12 @@ namespace SnackAttack.Gameplay
             }
 
             EventBus.Emit(GameEvent.GameStart);
+
+            var controls = GameManager.Instance.Controls;
+            string music = controls != null ? controls.gameplayMusic : "Gameplay";
             EventBus.Emit(GameEvent.PlayMusic, new Dictionary<string, object>
             {
-                { "track", "Gameplay" }
+                { "track", music }
             });
 
             StartCountdown();
@@ -165,16 +171,16 @@ namespace SnackAttack.Gameplay
         {
             if (_isSingleDog)
             {
-                // Single arena centered: (1200-515)/2 = 342.5 → center-origin: 342.5-600 = -257.5
+                // Single arena centered
                 var bounds1 = new Rect(-257.5f, -490f, 515f, 860f);
                 CreateArena(1, bounds1);
                 CreatePlayer(1, p1Char, bounds1, _arena1, _leashAnchor1, true, false);
             }
             else
             {
-                // Two arenas side by side, centered: (1200-1000)/2 = 100px offset
-                var bounds1 = new Rect(-500f, -490f, 515f, 860f);   // 100 from left
-                var bounds2 = new Rect(-15f, -490f, 515f, 860f);    // 585 from left
+                // Two arenas side by side, centered
+                var bounds1 = new Rect(-500f, -490f, 515f, 860f);
+                var bounds2 = new Rect(-15f, -490f, 515f, 860f);
 
                 CreateArena(1, bounds1);
                 CreateArena(2, bounds2);
@@ -206,12 +212,13 @@ namespace SnackAttack.Gameplay
             anchorRect.anchorMax = new Vector2(0.5f, 0.5f);
             anchorRect.pivot = new Vector2(0.5f, 0.5f);
 
-            // P1 anchor: (bounds.xMin + 15, bounds.yMin + 100)
-            // P2 anchor: (bounds.xMin + bounds.width - 15, bounds.yMin + 100)
+            float anchorPadding = _settings.leashAnchorPadding;
+            float anchorYOffset = _settings.leashAnchorYOffset;
+
             float anchorX = index == 1
-                ? bounds.xMin + 15f
-                : bounds.xMin + bounds.width - 15f;
-            float anchorY = bounds.yMin + 100f;
+                ? bounds.xMin + anchorPadding
+                : bounds.xMin + bounds.width - anchorPadding;
+            float anchorY = bounds.yMin + anchorYOffset;
             anchorRect.anchoredPosition = new Vector2(anchorX, anchorY);
 
             if (index == 1)
@@ -286,9 +293,8 @@ namespace SnackAttack.Gameplay
         private void StartCountdown()
         {
             _phase = RoundPhase.Countdown;
-            _countdownValue = 3;
-            _countdownTimer = 1.0f;
-
+            _countdownValue = _settings.countdownStart;
+            _countdownTimer = _settings.countdownTickDuration;
 
             if (_player1 != null) _player1.enabled = false;
             if (_player2 != null) _player2.enabled = false;
@@ -307,7 +313,7 @@ namespace SnackAttack.Gameplay
                 _countdownValue--;
                 if (_countdownValue > 0)
                 {
-                    _countdownTimer = 1.0f;
+                    _countdownTimer = _settings.countdownTickDuration;
                     EventBus.Emit(GameEvent.PlaySound, new Dictionary<string, object>
                     {
                         { "sound", _countdownValue == 1 ? "countdown_1" : "countdown_2_3" }
@@ -358,8 +364,9 @@ namespace SnackAttack.Gameplay
             _roundTimer -= Time.deltaTime;
 
             float elapsed = _roundDuration - _roundTimer;
+            float chaosThreshold = _settings.crowdChaosThreshold;
             if (!_crowdChaosTriggered && !_crowdChaosCountdownActive
-                && elapsed >= CrowdChaosElapsedThreshold)
+                && elapsed >= chaosThreshold)
             {
                 StartCrowdChaosCountdown();
             }
@@ -382,7 +389,7 @@ namespace SnackAttack.Gameplay
         {
             _crowdChaosTriggered = true;
             _crowdChaosCountdownActive = true;
-            _crowdChaosCountdownTimer = CrowdChaosCountdownDuration;
+            _crowdChaosCountdownTimer = _settings.crowdChaosCountdown;
         }
 
         private void ActivateCrowdChaos()

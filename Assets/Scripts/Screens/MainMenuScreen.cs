@@ -22,6 +22,10 @@ namespace SnackAttack.Screens
         private RectTransform _indicatorRect;
         private RectTransform[] _buttonRects;
 
+        // Cached settings
+        private UILayoutSO _layout;
+        private ControlsSO _controls;
+
         private struct MenuItem
         {
             public GameState? targetState;
@@ -86,10 +90,16 @@ namespace SnackAttack.Screens
         public override void OnEnter(Dictionary<string, object> data)
         {
             base.OnEnter(data);
+
+            _layout = GM.UILayout;
+            _controls = GM.Controls;
+
             _selectedIndex = 0;
             _active = true;
             UpdateIndicator();
-            PlayMusic("background");
+
+            string bgMusic = _controls != null ? _controls.backgroundMusic : "background";
+            PlayMusic(bgMusic);
         }
 
         public override void OnExit()
@@ -112,19 +122,23 @@ namespace SnackAttack.Screens
         {
             if (!InputsManager.Started) return;
 
-            if (InputsManager.InputPositiveDown("Vertical"))
+            string vAxis = _controls != null ? _controls.verticalAxis : "Vertical";
+            string submitAction = _controls != null ? _controls.submitAction : "Submit";
+            string cancelAction = _controls != null ? _controls.cancelAction : "Cancel";
+
+            if (InputsManager.InputPositiveDown(vAxis))
             {
                 ChangeSelection(-1);
             }
-            else if (InputsManager.InputNegativeDown("Vertical"))
+            else if (InputsManager.InputNegativeDown(vAxis))
             {
                 ChangeSelection(1);
             }
-            else if (InputsManager.InputDown("Submit"))
+            else if (InputsManager.InputDown(submitAction))
             {
                 ActivateSelected();
             }
-            else if (InputsManager.InputDown("Cancel"))
+            else if (InputsManager.InputDown(cancelAction))
             {
                 QuitGame();
             }
@@ -145,7 +159,8 @@ namespace SnackAttack.Screens
                     {
                         _selectedIndex = i;
                         UpdateIndicator();
-                        PlaySound("select");
+                        string selectSnd = _controls != null ? _controls.selectSound : "select";
+                        PlaySound(selectSnd);
                     }
 
                     if (InputsManager.InputMouseButtonUp(0))
@@ -162,12 +177,14 @@ namespace SnackAttack.Screens
             int count = _menuItems.Length;
             _selectedIndex = ((_selectedIndex + direction) % count + count) % count;
             UpdateIndicator();
-            PlaySound("select");
+            string selectSnd = _controls != null ? _controls.selectSound : "select";
+            PlaySound(selectSnd);
         }
 
         private void ActivateSelected()
         {
-            PlaySound("select");
+            string selectSnd = _controls != null ? _controls.selectSound : "select";
+            PlaySound(selectSnd);
 
             var item = _menuItems[_selectedIndex];
             if (item.isQuit)
@@ -196,7 +213,8 @@ namespace SnackAttack.Screens
             float buttonHalfWidth = buttonRect.sizeDelta.x * 0.5f;
             float indicatorHalfWidth = _indicatorRect.sizeDelta.x * 0.5f;
 
-            float indicatorX = buttonX - buttonHalfWidth - indicatorHalfWidth - 6f;
+            float offset = _layout != null ? _layout.selectorOffset : 6f;
+            float indicatorX = buttonX - buttonHalfWidth - indicatorHalfWidth - offset;
             float indicatorY = buttonRect.anchoredPosition.y;
 
             _indicatorRect.anchoredPosition = new Vector2(indicatorX, indicatorY);

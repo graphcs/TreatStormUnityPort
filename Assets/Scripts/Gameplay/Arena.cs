@@ -23,10 +23,10 @@ namespace SnackAttack.Gameplay
         private float _baseSpawnInterval;
         private float _spawnRateMultiplier = 1.0f;
         private int _maxSnacks;
-        private float _fallSpeed = 180f; // PyGame: 180 px/s (direct pixel values now)
+        private float _fallSpeed;
         private SnackSO[] _snackPool;
 
-        // Ground level where snacks despawn (PyGame: bounds.bottom + 16)
+        // Ground level where snacks despawn
         private float _groundY;
 
         // Spawn timer
@@ -38,7 +38,6 @@ namespace SnackAttack.Gameplay
         // Lightning effect
         private bool _lightningActive;
         private float _lightningTimer;
-        private const float LightningDuration = 0.08f;
         private SnackSO _pendingSnack;
         private float _pendingSnackX;
         private float _pendingSnackScale = 1f;
@@ -63,9 +62,7 @@ namespace SnackAttack.Gameplay
         // Voted food spawning
         private bool _votedFoodActive;
         private float _votedFoodTimer;
-        private float _votedFoodDuration = 5f;
         private SnackSO _votedFoodConfig;
-        private float _votedFoodSpawnInterval = 0.3f;
         private float _votedFoodSpawnTimer;
 
         // Active snacks tracking
@@ -76,6 +73,10 @@ namespace SnackAttack.Gameplay
 
         // Entity root (GameplayRoot) for lightning parenting
         private RectTransform _entityRoot;
+
+        // Cached settings
+        private GameSettingsSO _gameSettings;
+        private SnackDatabaseSO _snackDb;
 
         // Public accessors
         public void SetSpawningEnabled(bool enabled)
@@ -96,14 +97,21 @@ namespace SnackAttack.Gameplay
         {
             _bounds = bounds;
             snackDatabase = database;
+            _snackDb = database;
             _baseSpawnInterval = database.baseInterval;
             _maxSnacks = database.maxActive;
             _snackPool = level.snackPool;
             _spawnRateMultiplier = level.spawnRateMultiplier;
             _entityRoot = entityRoot;
 
-            // Ground Y: bounds.yMin + 16px (16px above bottom)
-            _groundY = bounds.yMin + 16f;
+            _gameSettings = GameManager.Instance?.GameSettings;
+
+            // Fall speed from SO
+            _fallSpeed = _snackDb != null ? _snackDb.baseFallSpeed : 180f;
+
+            // Ground Y: bounds.yMin + groundYOffset
+            float groundYOffset = _gameSettings != null ? _gameSettings.groundYOffset : 16f;
+            _groundY = bounds.yMin + groundYOffset;
 
             _initialized = true;
             _spawnTimer = 0f;
@@ -125,10 +133,13 @@ namespace SnackAttack.Gameplay
         {
             _snackPool = level.snackPool;
             _spawnRateMultiplier = level.spawnRateMultiplier;
-            // PyGame: fall_speed = 180 + (level - 1) * 30
-            _fallSpeed = 180f + levelIndex * 30f;
-            // PyGame: base_interval = max(min_interval, base_interval - (level - 1) * 0.15)
-            _baseSpawnInterval = Mathf.Max(snackDatabase.minInterval, snackDatabase.baseInterval - levelIndex * 0.15f);
+
+            float baseFall = _snackDb != null ? _snackDb.baseFallSpeed : 180f;
+            float perLevel = _snackDb != null ? _snackDb.fallSpeedPerLevel : 30f;
+            float intervalDec = _snackDb != null ? _snackDb.spawnIntervalDecrement : 0.15f;
+
+            _fallSpeed = baseFall + levelIndex * perLevel;
+            _baseSpawnInterval = Mathf.Max(snackDatabase.minInterval, snackDatabase.baseInterval - levelIndex * intervalDec);
         }
 
         public void SetCloudSpawnX(float x)
@@ -138,8 +149,10 @@ namespace SnackAttack.Gameplay
 
         public void StartVotedFoodPhase(SnackSO snack, float scale = 1.5f)
         {
+            float votedDuration = _gameSettings != null ? _gameSettings.votedFoodDuration : 5f;
+
             _votedFoodActive = true;
-            _votedFoodTimer = _votedFoodDuration;
+            _votedFoodTimer = votedDuration;
             _votedFoodConfig = snack;
             _pendingSnackScale = scale;
             _votedFoodSpawnTimer = 0f;
@@ -188,6 +201,8 @@ namespace SnackAttack.Gameplay
         {
             _spawnTimer -= dt;
 
+            float votedInterval = _gameSettings != null ? _gameSettings.votedFoodSpawnInterval : 0.3f;
+
             if (_votedFoodActive)
             {
                 _votedFoodTimer -= dt;
@@ -204,7 +219,7 @@ namespace SnackAttack.Gameplay
                 {
                     float x = Random.Range(_bounds.xMin + 50f, _bounds.xMax - 50f);
                     SpawnSnackImmediate(_votedFoodConfig, x, _pendingSnackScale);
-                    _votedFoodSpawnTimer = _votedFoodSpawnInterval + Random.Range(-0.1f, 0.1f);
+                    _votedFoodSpawnTimer = votedInterval + Random.Range(-0.1f, 0.1f);
                 }
             }
             else if (_spawnTimer <= 0f)
@@ -224,11 +239,11 @@ namespace SnackAttack.Gameplay
             SnackSO selected = snackDatabase.GetWeightedRandomFromPool(_snackPool);
             if (selected == null) return;
 
-            float padding = 20f;
+            float padding = _gameSettings != null ? _gameSettings.snackSpawnPadding : 20f;
+            float variance = _gameSettings != null ? _gameSettings.snackSpawnVariance : 120f;
             float x;
             if (_cloudSpawnX.HasValue)
             {
-                float variance = 120f; // PyGame: 120px
                 x = _cloudSpawnX.Value + Random.Range(-variance, variance);
                 x = Mathf.Clamp(x, _bounds.xMin + padding, _bounds.xMax - padding);
             }
@@ -245,8 +260,8 @@ namespace SnackAttack.Gameplay
 
         private void SpawnSnackImmediate(SnackSO snackData, float x, float scale = 1f)
         {
-            // Spawn Y at top of arena minus 60px
-            float spawnY = _bounds.yMax - 60f;
+            float spawnYOffset = _gameSettings != null ? _gameSettings.snackSpawnYOffset : 60f;
+            float spawnY = _bounds.yMax - spawnYOffset;
 
             var go = new GameObject($"Snack_{snackData.id}");
             var rect = go.AddComponent<RectTransform>();
@@ -257,7 +272,6 @@ namespace SnackAttack.Gameplay
             rect.anchoredPosition = new Vector2(x, spawnY);
 
             var fallingSnack = go.AddComponent<FallingSnack>();
-            // Pass raw fall speed (no /100 conversion)
             fallingSnack.Initialize(snackData, _fallSpeed, _groundY, scale);
 
             _activeSnacks.Add(fallingSnack);
@@ -291,6 +305,8 @@ namespace SnackAttack.Gameplay
 
         private void SetupLightningDrawer()
         {
+            float lineWidth = _gameSettings != null ? _gameSettings.lightningLineWidth : 5f;
+
             var lightningGo = new GameObject("Lightning");
             var lightningRect = lightningGo.AddComponent<RectTransform>();
             lightningRect.SetParent(_entityRoot, false);
@@ -300,14 +316,18 @@ namespace SnackAttack.Gameplay
             lightningRect.sizeDelta = Vector2.zero;
 
             _lightningDrawer = lightningGo.AddComponent<UILineDrawer>();
-            _lightningDrawer.SetWidth(5f, 2f);
+            _lightningDrawer.SetWidth(lineWidth, 2f);
             _lightningDrawer.raycastTarget = false;
         }
 
         private void TriggerLightning(float targetX)
         {
+            float duration = _gameSettings != null ? _gameSettings.lightningDuration : 0.08f;
+            int numSegments = _gameSettings != null ? _gameSettings.lightningSegments : 6;
+            float jagRange = _gameSettings != null ? _gameSettings.lightningJagRange : 30f;
+
             _lightningActive = true;
-            _lightningTimer = LightningDuration;
+            _lightningTimer = duration;
             _lightningColor = LightningColors[Random.Range(0, LightningColors.Length)];
 
             if (!_thunderPlayedThisRound)
@@ -319,20 +339,19 @@ namespace SnackAttack.Gameplay
                 _thunderPlayedThisRound = true;
             }
 
-            // Generate jagged bolt points (PyGame: 6 segments from cloud to spawn point)
+            // Generate jagged bolt points
             float startX = _cloudSpawnX ?? targetX;
             float startY = _bounds.yMax - 50f;   // Just below cloud
             float endX = targetX;
             float endY = _bounds.yMax - 130f;     // Where food appears
 
-            int numSegments = 6;
             var points = new Vector2[numSegments + 1];
             points[0] = new Vector2(startX, startY);
 
             for (int i = 1; i < numSegments; i++)
             {
                 float progress = (float)i / numSegments;
-                float midX = Mathf.Lerp(startX, endX, progress) + Random.Range(-30f, 30f);
+                float midX = Mathf.Lerp(startX, endX, progress) + Random.Range(-jagRange, jagRange);
                 float midY = Mathf.Lerp(startY, endY, progress);
                 points[i] = new Vector2(midX, midY);
             }
@@ -348,8 +367,8 @@ namespace SnackAttack.Gameplay
 
             _lightningTimer -= dt;
 
-            // Randomly change color during flash (PyGame: 30% chance per frame)
-            if (Random.value < 0.3f)
+            float colorChangeProb = _gameSettings != null ? _gameSettings.lightningColorChangeProb : 0.3f;
+            if (Random.value < colorChangeProb)
             {
                 _lightningColor = LightningColors[Random.Range(0, LightningColors.Length)];
                 _lightningDrawer.SetLineColor(_lightningColor);

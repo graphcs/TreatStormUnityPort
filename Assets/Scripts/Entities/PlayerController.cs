@@ -30,7 +30,6 @@ namespace SnackAttack.Entities
         // Movement
         private Vector2 _moveInput;
         private Vector2 _velocity;
-        private float _baseMoveSpeed = 350f;
         private bool _facingRight;
         private bool _isMoving;
 
@@ -46,13 +45,9 @@ namespace SnackAttack.Entities
         private float _leashMinX;
         private float _leashMaxX;
         private float _leashEffectTimer;
-        private float _leashEffectDuration = 8f;
-        private float _leashExtendFraction = 0.15f;
-        private float _leashYankFraction = 0.35f;
         private float _arenaWidth;
 
         // Flight
-        private float _flightHeightFraction = 0.35f;
         private float _restingY;
         private float _flightHoverOffset;
         private float _flightLiftOffset;
@@ -69,6 +64,9 @@ namespace SnackAttack.Entities
 
         // Cached components
         private RectTransform _rectTransform;
+
+        // Cached settings
+        private GameSettingsSO _settings;
 
         // Public read-only accessors
         public int PlayerNumber => playerNumber;
@@ -115,6 +113,16 @@ namespace SnackAttack.Entities
 
         private float VisualSize => characterData != null ? characterData.gameplaySize : 216f;
 
+        private GameSettingsSO Settings
+        {
+            get
+            {
+                if (_settings == null)
+                    _settings = GameManager.Instance?.GameSettings;
+                return _settings;
+            }
+        }
+
         // --- Public API ---
 
         public void SetMoveInput(Vector2 input)
@@ -143,10 +151,9 @@ namespace SnackAttack.Entities
             _leashMinX = _leashBaseMinX;
             _leashMaxX = _leashBaseMaxX;
 
-            // PyGame: top_of_sprite = arena.bottom - 230
-            // Unity center-pivot: center = -(top + halfSize) = bounds.yMin + 230 - halfSize
+            float groundYOffset = Settings != null ? Settings.playerGroundYOffset : 230f;
             float startX = bounds.xMin + bounds.width * 0.5f;
-            float startY = bounds.yMin + 230f - halfSize;
+            float startY = bounds.yMin + groundYOffset - halfSize;
             _rectTransform.anchoredPosition = new Vector2(startX, startY);
             _restingY = startY;
         }
@@ -229,22 +236,28 @@ namespace SnackAttack.Entities
 
         public void ExtendLeash(float? crossMax = null)
         {
+            float extendFraction = Settings != null ? Settings.leashExtendFraction : 0.15f;
+            float effectDuration = Settings != null ? Settings.leashEffectDuration : 8f;
+
             if (crossMax.HasValue)
                 _leashMaxX = crossMax.Value;
             else
-                _leashMaxX = _leashBaseMaxX + _arenaWidth * _leashExtendFraction;
+                _leashMaxX = _leashBaseMaxX + _arenaWidth * extendFraction;
 
-            _leashEffectTimer = _leashEffectDuration;
+            _leashEffectTimer = effectDuration;
         }
 
         public void YankLeash()
         {
+            float yankFraction = Settings != null ? Settings.leashYankFraction : 0.35f;
+            float effectDuration = Settings != null ? Settings.leashEffectDuration : 8f;
+
             float minRange = VisualSize * 2f;
             _leashMaxX = Mathf.Max(
-                _leashBaseMaxX - _arenaWidth * _leashYankFraction,
+                _leashBaseMaxX - _arenaWidth * yankFraction,
                 _leashMinX + minRange
             );
-            _leashEffectTimer = _leashEffectDuration;
+            _leashEffectTimer = effectDuration;
         }
 
         public void ResetLeash()
@@ -264,10 +277,10 @@ namespace SnackAttack.Entities
 
         public void ResetForNewRound()
         {
-            // Position at center-bottom of arena (230px above bottom, center-pivot adjusted)
+            float groundYOffset = Settings != null ? Settings.playerGroundYOffset : 230f;
             float startX = _arenaBounds.xMin + _arenaBounds.width * 0.5f;
             float halfSize = VisualSize * 0.5f;
-            float startY = _arenaBounds.yMin + 230f - halfSize;
+            float startY = _arenaBounds.yMin + groundYOffset - halfSize;
             _rectTransform.anchoredPosition = new Vector2(startX, startY);
             _restingY = startY;
             _velocity = Vector2.zero;
@@ -310,21 +323,22 @@ namespace SnackAttack.Entities
             if (CanMoveVertical && input.x != 0f && input.y != 0f)
                 input = input.normalized;
 
+            float baseMoveSpeed = Settings != null ? Settings.baseMoveSpeed : 350f;
             float charSpeed = characterData != null ? characterData.baseSpeed : 1f;
-            float speed = _baseMoveSpeed * charSpeed * _speedMultiplier;
+            float speed = baseMoveSpeed * charSpeed * _speedMultiplier;
 
             _velocity.x = input.x * speed;
             _velocity.y = CanMoveVertical ? input.y * speed : 0f;
 
             // Dampen upward velocity near flight ceiling
+            float ceilingMargin = Settings != null ? Settings.flightCeilingMargin : 30f;
             if (CanMoveVertical && horizontalOnly && _velocity.y > 0f)
             {
                 float ceiling = GetFlightCeiling();
-                float margin = 30f;
                 float posY = _rectTransform.anchoredPosition.y;
-                if (posY >= ceiling - margin)
+                if (posY >= ceiling - ceilingMargin)
                 {
-                    float damp = Mathf.Max(0f, (ceiling - posY) / margin);
+                    float damp = Mathf.Max(0f, (ceiling - posY) / ceilingMargin);
                     _velocity.y *= damp;
                 }
             }
@@ -338,11 +352,12 @@ namespace SnackAttack.Entities
             _isMoving = input.x != 0f || (CanMoveVertical && input.y != 0f);
 
             // Return-to-ground spring when horizontalOnly and not boosting
+            float springForce = Settings != null ? Settings.flightSpringForce : 5f;
             if (horizontalOnly && !_hasBoosting)
             {
                 float diff = _restingY - _rectTransform.anchoredPosition.y;
                 if (Mathf.Abs(diff) > 1f)
-                    _velocity.y = diff * 5f;
+                    _velocity.y = diff * springForce;
                 else
                 {
                     var pos = _rectTransform.anchoredPosition;
@@ -371,10 +386,9 @@ namespace SnackAttack.Entities
 
         private float GetFlightCeiling()
         {
-            // PyGame measures lift from sprite-top to arena-top
-            // With center pivot, derive sprite-top first
+            float heightFraction = Settings != null ? Settings.flightHeightFraction : 0.35f;
             float topOfSprite = _restingY + VisualSize * 0.5f;
-            float maxLift = (_arenaBounds.yMax - topOfSprite) * _flightHeightFraction;
+            float maxLift = (_arenaBounds.yMax - topOfSprite) * heightFraction;
             return _restingY + maxLift;
         }
 
@@ -422,34 +436,46 @@ namespace SnackAttack.Entities
 
         private void UpdateFlightState(float dt)
         {
+            float hoverFreq = Settings != null ? Settings.hoverFrequency : 3f;
+            float hoverAmp = Settings != null ? Settings.hoverAmplitude : 6f;
+            float liftTarget = Settings != null ? Settings.flightLiftTarget : -15f;
+            float tiltThreshold = Settings != null ? Settings.tiltVelocityThreshold : 50f;
+            float tiltAng = Settings != null ? Settings.tiltAngle : 8f;
+            float lateralLean = Settings != null ? Settings.lateralLeanMultiplier : 4f;
+            float leanTilt = Settings != null ? Settings.leanToTiltRatio : 0.3f;
+            float tiltSmooth = Settings != null ? Settings.tiltSmoothingRate : 8f;
+            float hoverDecay = Settings != null ? Settings.hoverDecayRate : 6f;
+            float liftDecay = Settings != null ? Settings.liftDecayRate : 6f;
+            float tiltDecay = Settings != null ? Settings.tiltDecayRate : 8f;
+
             if (_hasBoosting)
             {
                 _flightTime += dt;
-                _flightHoverOffset = Mathf.Sin(_flightTime * 3f) * 6f;
-                _flightLiftOffset += (-15f - _flightLiftOffset) * Mathf.Min(1f, dt * 5f);
+                _flightHoverOffset = Mathf.Sin(_flightTime * hoverFreq) * hoverAmp;
+                _flightLiftOffset += (liftTarget - _flightLiftOffset) * Mathf.Min(1f, dt * Settings.flightSpringForce);
 
                 // Tilt based on velocity
                 float targetTilt = 0f;
-                if (_velocity.y > 50f)
-                    targetTilt = 8f;
-                else if (_velocity.y < -50f)
-                    targetTilt = -8f;
+                if (_velocity.y > tiltThreshold)
+                    targetTilt = tiltAng;
+                else if (_velocity.y < -tiltThreshold)
+                    targetTilt = -tiltAng;
 
                 if (_velocity.x != 0f)
                 {
-                    float lean = _velocity.x > 0f ? 4f : -4f;
+                    float lean = _velocity.x > 0f ? lateralLean : -lateralLean;
                     if (!_facingRight) lean = -lean;
-                    targetTilt += lean * 0.3f;
+                    targetTilt += lean * leanTilt;
                 }
 
-                _flightTiltAngle += (targetTilt - _flightTiltAngle) * Mathf.Min(1f, dt * 8f);
+                _flightTiltAngle += (targetTilt - _flightTiltAngle) * Mathf.Min(1f, dt * tiltSmooth);
             }
             else
             {
                 _flightTime = 0f;
-                _flightHoverOffset *= Mathf.Max(0f, 1f - dt * 6f);
-                _flightLiftOffset *= Mathf.Max(0f, 1f - dt * 6f);
-                _flightTiltAngle *= Mathf.Max(0f, 1f - dt * 8f);
+                _flightHoverOffset *= Mathf.Max(0f, 1f - dt * hoverDecay);
+                _flightLiftOffset *= Mathf.Max(0f, 1f - dt * liftDecay);
+                _flightTiltAngle *= Mathf.Max(0f, 1f - dt * tiltDecay);
             }
         }
     }

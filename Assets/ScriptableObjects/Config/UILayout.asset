@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57e46802cac00d44dbce7d2a492a3a24, type: 3}
+  m_Name: UILayout
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.UILayoutSO
+  cardsPerRow: 3
+  cardWidth: 225
+  cardHeight: 225
+  spacingX: 32
+  spacingY: 32
+  scrollZoneTop: 310
+  scrollZoneHeight: 540
+  outlineDistance: {x: 4, y: -4}
+  scrollSensitivity: 40
+  winnerNameY: -180
+  winnerNameSize: {x: 800, y: 100}
+  winnerNameFontSize: 80
+  winsImageY: -230
+  winsImageScale: 0.6
+  menuBarY: -330
+  menuBarWidth: 912
+  roundsTextY: -330
+  roundsTextSize: {x: 800, y: 50}
+  roundsTextFontSize: 28
+  scoreBoxSingleX: 319
+  scoreBoxY: -350
+  scoreBoxP1X: 72
+  scoreBoxP2X: 565
+  scoreBoxSize: {x: 563, y: 521}
+  scoreNameY: -198
+  scoreNameFontSize: 43
+  scoreLabelY: -260
+  scoreLabelFontSize: 24
+  scoreValueY: -323
+  scoreValueFontSize: 61
+  playAgainY: -850
+  mainMenuY: -910
+  menuOptionFontSize: 28
+  selectIndicatorSize: {x: 36, y: 30}
+  selectorOffset: 6
+  selectorPadding: 10
+  popupSize: {x: 200, y: 50}
+  outlineWidth: 0.25

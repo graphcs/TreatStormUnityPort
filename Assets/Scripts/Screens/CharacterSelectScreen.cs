@@ -20,23 +20,6 @@ namespace SnackAttack.Screens
         [SerializeField] private TMP_Text footerText;
         [SerializeField] private Sprite borderSprite;
 
-        private const int CardsPerRow = 3;
-        private const float CardWidth = 225f;
-        private const float CardHeight = 225f;
-        private const float SpacingX = 32f;
-        private const float SpacingY = 32f;
-
-        // Colors
-        private static readonly Color P1Color = new Color(0.392f, 0.706f, 1.0f);
-        private static readonly Color P2Color = new Color(1.0f, 0.471f, 0.471f);
-        private static readonly Color BothColor = new Color(0.784f, 0.588f, 1.0f);
-        private static readonly Color UnselectedBorder = new Color(0.235f, 0.275f, 0.392f);
-        private static readonly Color HighlightGold = new Color(1.0f, 0.863f, 0.314f);
-        private static readonly Color BackDefault = new Color(0.302f, 0.169f, 0.122f);
-        private static readonly Color BackHover = new Color(0.576f, 0.298f, 0.188f);
-        private static readonly Color CreateDogDefault = new Color(0.784f, 0.667f, 0.235f);
-        private static readonly Color CreateDogHover = new Color(1.0f, 0.863f, 0.314f);
-
         // State
         private string _gameMode;
         private bool _vsAi;
@@ -53,15 +36,21 @@ namespace SnackAttack.Screens
         private ScrollRect _scrollRect;
         private GameObject _scrollViewGO;
 
-        // PyGame scroll zone: Y 310→850 from top (height 540)
-        private const float ScrollZoneTop = 310f;
-        private const float ScrollZoneHeight = 540f;
+        // Cached settings
+        private UIColorsSO _colors;
+        private UILayoutSO _layout;
+        private ControlsSO _controls;
 
         private static readonly string[] CharacterOrder = { "jazzy", "biggie", "dash", "snowy", "prissy", "rex" };
 
         public override void OnEnter(Dictionary<string, object> data)
         {
             base.OnEnter(data);
+
+            // Cache settings
+            _colors = GM.UIColors;
+            _layout = GM.UILayout;
+            _controls = GM.Controls;
 
             _gameMode = data != null && data.ContainsKey("mode") ? (string)data["mode"] : "single_dog";
             _vsAi = data != null && data.ContainsKey("vs_ai") && (bool)data["vs_ai"];
@@ -120,15 +109,22 @@ namespace SnackAttack.Screens
             DestroyCards();
             SetupScrollView();
 
+            int cardsPerRow = _layout != null ? _layout.cardsPerRow : 3;
+            float cardWidth = _layout != null ? _layout.cardWidth : 225f;
+            float cardHeight = _layout != null ? _layout.cardHeight : 225f;
+            float spacingX = _layout != null ? _layout.spacingX : 32f;
+            float spacingY = _layout != null ? _layout.spacingY : 32f;
+            Vector2 outlineDist = _layout != null ? _layout.outlineDistance : new Vector2(4f, -4f);
+
             // Configure GridLayoutGroup on container
             var grid = cardsContainer.GetComponent<GridLayoutGroup>();
             if (grid == null)
                 grid = cardsContainer.gameObject.AddComponent<GridLayoutGroup>();
 
-            grid.cellSize = new Vector2(CardWidth, CardHeight);
-            grid.spacing = new Vector2(SpacingX, SpacingY);
+            grid.cellSize = new Vector2(cardWidth, cardHeight);
+            grid.spacing = new Vector2(spacingX, spacingY);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = CardsPerRow;
+            grid.constraintCount = cardsPerRow;
             grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
             grid.startAxis = GridLayoutGroup.Axis.Horizontal;
             grid.childAlignment = TextAnchor.UpperCenter;
@@ -139,6 +135,8 @@ namespace SnackAttack.Screens
                 fitter = cardsContainer.gameObject.AddComponent<ContentSizeFitter>();
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+
+            Color p1Color = _colors != null ? _colors.p1Color : new Color(0.392f, 0.706f, 1.0f);
 
             _cardRects = new List<RectTransform>();
             _cardOutlines = new List<Outline>();
@@ -156,8 +154,8 @@ namespace SnackAttack.Screens
                 borderImg.color = Color.white;
 
                 var outline = cardGO.AddComponent<Outline>();
-                outline.effectColor = P1Color;
-                outline.effectDistance = new Vector2(4, -4);
+                outline.effectColor = p1Color;
+                outline.effectDistance = outlineDist;
                 outline.enabled = false;
 
                 // Portrait child fills the card on top
@@ -184,6 +182,10 @@ namespace SnackAttack.Screens
         {
             if (_scrollViewGO != null) return;
 
+            float scrollZoneTop = _layout != null ? _layout.scrollZoneTop : 310f;
+            float scrollZoneHeight = _layout != null ? _layout.scrollZoneHeight : 540f;
+            float scrollSensitivity = _layout != null ? _layout.scrollSensitivity : 40f;
+
             var panel = cardsContainer.parent;
 
             // Create scroll view GO
@@ -193,8 +195,8 @@ namespace SnackAttack.Screens
             svRect.anchorMin = new Vector2(0, 1);
             svRect.anchorMax = new Vector2(1, 1);
             svRect.pivot = new Vector2(0.5f, 1);
-            svRect.anchoredPosition = new Vector2(0, -ScrollZoneTop);
-            svRect.sizeDelta = new Vector2(0, ScrollZoneHeight);
+            svRect.anchoredPosition = new Vector2(0, -scrollZoneTop);
+            svRect.sizeDelta = new Vector2(0, scrollZoneHeight);
 
             // Create viewport child (RectTransform only, no mask)
             var viewportGO = new GameObject("Viewport");
@@ -209,7 +211,7 @@ namespace SnackAttack.Screens
             _scrollRect = _scrollViewGO.AddComponent<ScrollRect>();
             _scrollRect.horizontal = false;
             _scrollRect.vertical = true;
-            _scrollRect.scrollSensitivity = 40f;
+            _scrollRect.scrollSensitivity = scrollSensitivity;
             _scrollRect.movementType = ScrollRect.MovementType.Clamped;
             _scrollRect.viewport = viewportRect;
 
@@ -272,6 +274,11 @@ namespace SnackAttack.Screens
             string hInput, vInput;
             GetInputNames(out hInput, out vInput);
 
+            string submitAction = _controls != null ? _controls.submitAction : "Submit";
+            string cancelAction = _controls != null ? _controls.cancelAction : "Cancel";
+            string selectSnd = _controls != null ? _controls.selectSound : "select";
+            int cardsPerRow = _layout != null ? _layout.cardsPerRow : 3;
+
             int currentSel = GetCurrentSelection();
             bool wasBack = _backSelected;
 
@@ -281,15 +288,15 @@ namespace SnackAttack.Screens
                 if (_backSelected)
                 {
                     _backSelected = false;
-                    int lastRow = (_characters.Count - 1) / CardsPerRow;
-                    int centerCol = Mathf.Min(1, _characters.Count - 1 - lastRow * CardsPerRow);
-                    SetCurrentSelection(lastRow * CardsPerRow + centerCol);
-                    PlaySound("select");
+                    int lastRow = (_characters.Count - 1) / cardsPerRow;
+                    int centerCol = Mathf.Min(1, _characters.Count - 1 - lastRow * cardsPerRow);
+                    SetCurrentSelection(lastRow * cardsPerRow + centerCol);
+                    PlaySound(selectSnd);
                 }
-                else if (currentSel >= CardsPerRow)
+                else if (currentSel >= cardsPerRow)
                 {
-                    SetCurrentSelection(currentSel - CardsPerRow);
-                    PlaySound("select");
+                    SetCurrentSelection(currentSel - cardsPerRow);
+                    PlaySound(selectSnd);
                 }
             }
             else if (InputsManager.InputNegativeDown(vInput))
@@ -297,17 +304,17 @@ namespace SnackAttack.Screens
                 // Down
                 if (!_backSelected)
                 {
-                    int row = currentSel / CardsPerRow;
-                    int lastRow = (_characters.Count - 1) / CardsPerRow;
+                    int row = currentSel / cardsPerRow;
+                    int lastRow = (_characters.Count - 1) / cardsPerRow;
                     if (row >= lastRow)
                     {
                         _backSelected = true;
-                        PlaySound("select");
+                        PlaySound(selectSnd);
                     }
                     else
                     {
-                        SetCurrentSelection(Mathf.Min(currentSel + CardsPerRow, _characters.Count - 1));
-                        PlaySound("select");
+                        SetCurrentSelection(Mathf.Min(currentSel + cardsPerRow, _characters.Count - 1));
+                        PlaySound(selectSnd);
                     }
                 }
             }
@@ -317,7 +324,7 @@ namespace SnackAttack.Screens
                 if (!_backSelected && currentSel > 0)
                 {
                     SetCurrentSelection(currentSel - 1);
-                    PlaySound("select");
+                    PlaySound(selectSnd);
                 }
             }
             else if (InputsManager.InputPositiveDown(hInput))
@@ -326,10 +333,10 @@ namespace SnackAttack.Screens
                 if (!_backSelected && currentSel < _characters.Count - 1)
                 {
                     SetCurrentSelection(currentSel + 1);
-                    PlaySound("select");
+                    PlaySound(selectSnd);
                 }
             }
-            else if (InputsManager.InputDown("Submit"))
+            else if (InputsManager.InputDown(submitAction))
             {
                 if (_backSelected)
                 {
@@ -340,7 +347,7 @@ namespace SnackAttack.Screens
                     ConfirmSelection();
                 }
             }
-            else if (InputsManager.InputDown("Cancel"))
+            else if (InputsManager.InputDown(cancelAction))
             {
                 GoBackAction();
             }
@@ -356,6 +363,7 @@ namespace SnackAttack.Screens
         private void HandleMouseInput()
         {
             Vector2 mousePos = InputsManager.InputMousePosition();
+            string selectSnd = _controls != null ? _controls.selectSound : "select";
 
             // Check cards
             for (int i = 0; i < _cardRects.Count; i++)
@@ -369,7 +377,7 @@ namespace SnackAttack.Screens
                         SetCurrentSelection(i);
                         UpdateAllCardVisuals();
                         UpdateBackVisual();
-                        PlaySound("select");
+                        PlaySound(selectSnd);
                     }
 
                     if (InputsManager.InputMouseButtonUp(0))
@@ -391,7 +399,7 @@ namespace SnackAttack.Screens
                         _backSelected = true;
                         UpdateAllCardVisuals();
                         UpdateBackVisual();
-                        PlaySound("select");
+                        PlaySound(selectSnd);
                     }
 
                     if (InputsManager.InputMouseButtonUp(0))
@@ -422,20 +430,27 @@ namespace SnackAttack.Screens
 
         private void GetInputNames(out string horizontal, out string vertical)
         {
+            string p1H = _controls != null ? _controls.player1Horizontal : "Player1_Horizontal";
+            string p1V = _controls != null ? _controls.player1Vertical : "Player1_Vertical";
+            string p2H = _controls != null ? _controls.player2Horizontal : "Player2_Horizontal";
+            string p2V = _controls != null ? _controls.player2Vertical : "Player2_Vertical";
+            string sharedH = _controls != null ? _controls.horizontalAxis : "Horizontal";
+            string sharedV = _controls != null ? _controls.verticalAxis : "Vertical";
+
             if (_gameMode == "2p" && _activePlayer == 1)
             {
-                horizontal = "Player1_Horizontal";
-                vertical = "Player1_Vertical";
+                horizontal = p1H;
+                vertical = p1V;
             }
             else if (_gameMode == "2p" && _activePlayer == 2)
             {
-                horizontal = "Player2_Horizontal";
-                vertical = "Player2_Vertical";
+                horizontal = p2H;
+                vertical = p2V;
             }
             else
             {
-                horizontal = "Horizontal";
-                vertical = "Vertical";
+                horizontal = sharedH;
+                vertical = sharedV;
             }
         }
 
@@ -454,7 +469,8 @@ namespace SnackAttack.Screens
 
         private void ConfirmSelection()
         {
-            PlaySound("select");
+            string selectSnd = _controls != null ? _controls.selectSound : "select";
+            PlaySound(selectSnd);
 
             if (_gameMode == "2p" && !_p1Confirmed)
             {
@@ -475,7 +491,8 @@ namespace SnackAttack.Screens
 
         private void GoBackAction()
         {
-            PlaySound("select");
+            string selectSnd = _controls != null ? _controls.selectSound : "select";
+            PlaySound(selectSnd);
 
             if (_gameMode == "2p" && _p1Confirmed)
             {
@@ -525,18 +542,21 @@ namespace SnackAttack.Screens
         {
             if (playerIndicator == null) return;
 
+            Color p1Color = _colors != null ? _colors.p1Color : new Color(0.392f, 0.706f, 1.0f);
+            Color p2Color = _colors != null ? _colors.p2Color : new Color(1.0f, 0.471f, 0.471f);
+
             if (_gameMode == "2p")
             {
                 playerIndicator.gameObject.SetActive(true);
                 if (_activePlayer == 1)
                 {
                     playerIndicator.text = "Player 1 Select";
-                    playerIndicator.color = P1Color;
+                    playerIndicator.color = p1Color;
                 }
                 else
                 {
                     playerIndicator.text = "Player 2 Select";
-                    playerIndicator.color = P2Color;
+                    playerIndicator.color = p2Color;
                 }
             }
             else
@@ -549,6 +569,12 @@ namespace SnackAttack.Screens
         {
             if (_cardOutlines == null) return;
 
+            Color p1Color = _colors != null ? _colors.p1Color : new Color(0.392f, 0.706f, 1.0f);
+            Color p2Color = _colors != null ? _colors.p2Color : new Color(1.0f, 0.471f, 0.471f);
+            Color bothColor = _colors != null ? _colors.bothColor : new Color(0.784f, 0.588f, 1.0f);
+            Color unselectedBorder = _colors != null ? _colors.unselectedBorder : new Color(0.235f, 0.275f, 0.392f);
+            Vector2 outlineDist = _layout != null ? _layout.outlineDistance : new Vector2(4f, -4f);
+
             for (int i = 0; i < _cardOutlines.Count; i++)
             {
                 Color borderColor;
@@ -559,29 +585,29 @@ namespace SnackAttack.Screens
 
                 if (isP1 && _p1Confirmed && isP2)
                 {
-                    borderColor = BothColor;
+                    borderColor = bothColor;
                     selected = true;
                 }
                 else if (isP1 && _p1Confirmed)
                 {
-                    borderColor = P1Color;
+                    borderColor = p1Color;
                     selected = true;
                 }
                 else if (isCurrentHover)
                 {
-                    borderColor = _activePlayer == 2 ? P2Color : P1Color;
+                    borderColor = _activePlayer == 2 ? p2Color : p1Color;
                     selected = true;
                 }
                 else
                 {
-                    borderColor = UnselectedBorder;
+                    borderColor = unselectedBorder;
                 }
 
                 _cardOutlines[i].enabled = selected;
                 if (selected)
                 {
                     _cardOutlines[i].effectColor = borderColor;
-                    _cardOutlines[i].effectDistance = new Vector2(4, -4);
+                    _cardOutlines[i].effectDistance = outlineDist;
                 }
             }
         }
@@ -589,7 +615,12 @@ namespace SnackAttack.Screens
         private void UpdateBackVisual()
         {
             if (backText == null) return;
-            backText.color = _backSelected ? BackHover : BackDefault;
+
+            Color backDefaultColor = _colors != null ? _colors.backDefault : new Color(0.302f, 0.169f, 0.122f);
+            Color backHoverColor = _colors != null ? _colors.backHover : new Color(0.576f, 0.298f, 0.188f);
+            float selectorOffset = _layout != null ? _layout.selectorOffset : 6f;
+
+            backText.color = _backSelected ? backHoverColor : backDefaultColor;
 
             if (selectIndicator != null)
             {
@@ -601,7 +632,7 @@ namespace SnackAttack.Screens
                     float halfWidth = backText.preferredWidth * 0.5f;
                     float indicatorHalf = indicatorRect.sizeDelta.x * 0.5f;
                     indicatorRect.anchoredPosition = new Vector2(
-                        backRect.anchoredPosition.x - halfWidth - indicatorHalf - 6f,
+                        backRect.anchoredPosition.x - halfWidth - indicatorHalf - selectorOffset,
                         backRect.anchoredPosition.y);
                 }
             }
@@ -610,7 +641,9 @@ namespace SnackAttack.Screens
         private void UpdateCreateDogVisual(bool hovered = false)
         {
             if (createDogText == null) return;
-            createDogText.color = hovered ? CreateDogHover : CreateDogDefault;
+            Color defaultColor = _colors != null ? _colors.createDogDefault : new Color(0.784f, 0.667f, 0.235f);
+            Color hoverColor = _colors != null ? _colors.createDogHover : new Color(1.0f, 0.863f, 0.314f);
+            createDogText.color = hovered ? hoverColor : defaultColor;
         }
 
         private void ScrollToSelection()
@@ -620,13 +653,16 @@ namespace SnackAttack.Screens
             int sel = GetCurrentSelection();
             if (sel < 0 || sel >= _cardRects.Count) return;
 
+            float cardHeight = _layout != null ? _layout.cardHeight : 225f;
+            float scrollZoneHeight = _layout != null ? _layout.scrollZoneHeight : 540f;
+
             // Get the selected card's position relative to the content
             var cardRect = _cardRects[sel];
             float cardTop = -cardRect.anchoredPosition.y;
-            float cardBottom = cardTop + CardHeight;
+            float cardBottom = cardTop + cardHeight;
 
             float contentHeight = cardsContainer.rect.height;
-            float viewHeight = ScrollZoneHeight;
+            float viewHeight = scrollZoneHeight;
 
             if (contentHeight <= viewHeight) return;
 

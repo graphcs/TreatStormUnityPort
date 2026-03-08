@@ -1,4 +1,5 @@
 using UnityEngine;
+using SnackAttack.Core;
 using SnackAttack.UI;
 
 namespace SnackAttack.Entities
@@ -14,30 +15,29 @@ namespace SnackAttack.Entities
         [SerializeField] private float maxSag = 30f;
         [SerializeField] private float sagFactor = 0.15f;
 
-        // State colors (PyGame values)
-        private static readonly Color NormalColor = new(0.545f, 0.353f, 0.169f);
-        private static readonly Color ExtendedColor = new(0.314f, 0.784f, 0.314f);
-        private static readonly Color YankedColor = new(0.784f, 0.314f, 0.314f);
-
-        // Rope colors (darker, for main line)
-        private static readonly Color NormalRopeColor = new(0.396f, 0.263f, 0.129f);
-        private static readonly Color ExtendedRopeColor = new(0.235f, 0.706f, 0.235f);
-        private static readonly Color YankedRopeColor = new(0.706f, 0.235f, 0.235f);
-
-        // Shadow color
-        private static readonly Color ShadowColor = new(0.196f, 0.118f, 0.078f);
-
         private PlayerController _player;
         private UILineDrawer _mainLine;
         private UILineDrawer _shadowLine;
         private Vector2[] _points;
         private Vector2[] _shadowPoints;
 
+        // Cached colors
+        private Color _normalRopeColor;
+        private Color _extendedRopeColor;
+        private Color _yankedRopeColor;
+
         private void Awake()
         {
             _player = GetComponent<PlayerController>();
             _points = new Vector2[segments + 1];
             _shadowPoints = new Vector2[segments + 1];
+
+            // Cache colors from SO
+            var colors = GameManager.Instance?.UIColors;
+            _normalRopeColor = colors != null ? colors.normalRopeColor : new Color(0.396f, 0.263f, 0.129f);
+            _extendedRopeColor = colors != null ? colors.extendedRopeColor : new Color(0.235f, 0.706f, 0.235f);
+            _yankedRopeColor = colors != null ? colors.yankedRopeColor : new Color(0.706f, 0.235f, 0.235f);
+            Color shadowColor = colors != null ? colors.shadowColor : new Color(0.196f, 0.118f, 0.078f);
 
             // Create shadow UILineDrawer child
             var shadowGo = new GameObject("LeashShadow");
@@ -49,7 +49,7 @@ namespace SnackAttack.Entities
             shadowRect.offsetMax = Vector2.zero;
             _shadowLine = shadowGo.AddComponent<UILineDrawer>();
             _shadowLine.SetWidth(6f, 6f);
-            _shadowLine.SetLineColor(ShadowColor);
+            _shadowLine.SetLineColor(shadowColor);
             _shadowLine.raycastTarget = false;
 
             // Create main UILineDrawer child
@@ -62,7 +62,7 @@ namespace SnackAttack.Entities
             mainRect.offsetMax = Vector2.zero;
             _mainLine = mainGo.AddComponent<UILineDrawer>();
             _mainLine.SetWidth(4f, 4f);
-            _mainLine.SetLineColor(NormalRopeColor);
+            _mainLine.SetLineColor(_normalRopeColor);
             _mainLine.raycastTarget = false;
         }
 
@@ -87,9 +87,9 @@ namespace SnackAttack.Entities
             LeashState state = _player.GetLeashState();
             Color ropeColor = state switch
             {
-                LeashState.Extended => ExtendedRopeColor,
-                LeashState.Yanked => YankedRopeColor,
-                _ => NormalRopeColor
+                LeashState.Extended => _extendedRopeColor,
+                LeashState.Yanked => _yankedRopeColor,
+                _ => _normalRopeColor
             };
             _mainLine.SetLineColor(ropeColor);
 

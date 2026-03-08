@@ -20,6 +20,19 @@ namespace SnackAttack.Entities
         private bool _avoidsPenalties;
         private bool _targetsPowerups;
 
+        // Scoring weights (cached from SO)
+        private float _distanceWeight;
+        private float _verticalReachThreshold;
+        private float _unreachablePenalty;
+        private float _reachableBonus;
+        private float _penaltyAvoidanceWeight;
+        private float _boostBonus;
+        private float _invincibilityBonus;
+        private float _speedBonus;
+        private float _reachThreshold;
+        private float _wanderPadding;
+        private float _wanderPaddingVertical;
+
         // State
         private float _decisionTimer;
         private FallingSnack _currentTarget;
@@ -47,6 +60,19 @@ namespace SnackAttack.Entities
             _pathfindingEfficiency = difficulty.pathfindingEfficiency;
             _avoidsPenalties = difficulty.avoidsPenalties;
             _targetsPowerups = difficulty.targetsPowerups;
+
+            // Cache scoring weights
+            _distanceWeight = difficulty.distanceWeight;
+            _verticalReachThreshold = difficulty.verticalReachThreshold;
+            _unreachablePenalty = difficulty.unreachablePenalty;
+            _reachableBonus = difficulty.reachableBonus;
+            _penaltyAvoidanceWeight = difficulty.penaltyAvoidanceWeight;
+            _boostBonus = difficulty.boostBonus;
+            _invincibilityBonus = difficulty.invincibilityBonus;
+            _speedBonus = difficulty.speedBonus;
+            _reachThreshold = difficulty.reachThreshold;
+            _wanderPadding = difficulty.wanderPadding;
+            _wanderPaddingVertical = difficulty.wanderPaddingVertical;
 
             // Disable human input handler on the same GameObject
             var inputHandler = GetComponent<PlayerInputHandler>();
@@ -120,13 +146,13 @@ namespace SnackAttack.Entities
 
                 if (!_player.CanMoveVertical)
                 {
-                    x = Random.Range(bounds.xMin + 20f, bounds.xMax - 20f);
+                    x = Random.Range(bounds.xMin + _wanderPadding, bounds.xMax - _wanderPadding);
                     y = _player.RectTransform.anchoredPosition.y;
                 }
                 else
                 {
-                    x = Random.Range(bounds.xMin + 10f, bounds.xMax - 10f);
-                    y = Random.Range(bounds.yMin + 10f, bounds.yMax - 10f);
+                    x = Random.Range(bounds.xMin + _wanderPaddingVertical, bounds.xMax - _wanderPaddingVertical);
+                    y = Random.Range(bounds.yMin + _wanderPaddingVertical, bounds.yMax - _wanderPaddingVertical);
                 }
 
                 _targetPosition = new Vector2(x, y);
@@ -163,21 +189,21 @@ namespace SnackAttack.Entities
 
             // Distance penalty (horizontal weighted)
             float dx = snack.RectTransform.anchoredPosition.x - _player.RectTransform.anchoredPosition.x;
-            score -= Mathf.Abs(dx) * 0.5f;
+            score -= Mathf.Abs(dx) * _distanceWeight;
 
             // Vertical reachability
             if (!_player.CanMoveVertical)
             {
                 float dy = snack.RectTransform.anchoredPosition.y - _player.RectTransform.anchoredPosition.y;
-                if (dy > 50f)
-                    score -= 200f;
+                if (dy > _verticalReachThreshold)
+                    score -= _unreachablePenalty;
                 if (dy <= 0f)
-                    score += 100f;
+                    score += _reachableBonus;
             }
 
             // Penalty avoidance
             if (snack.SnackData.pointValue < 0 && _avoidsPenalties)
-                score -= 300f;
+                score -= _penaltyAvoidanceWeight;
 
             // Power-up targeting
             if (_targetsPowerups && snack.SnackData.effect.HasEffect)
@@ -185,13 +211,13 @@ namespace SnackAttack.Entities
                 switch (snack.SnackData.effect.type)
                 {
                     case EffectType.SpeedBoost:
-                        score += 100f;
+                        score += _speedBonus;
                         break;
                     case EffectType.Invincibility:
-                        score += 150f;
+                        score += _invincibilityBonus;
                         break;
                     case EffectType.Boost:
-                        score += 100f;
+                        score += _boostBonus;
                         break;
                 }
             }
@@ -205,8 +231,7 @@ namespace SnackAttack.Entities
             Vector2 dir = _targetPosition - myPos;
             float distance = dir.magnitude;
 
-            // Reached threshold (PyGame: 5px)
-            if (distance < 5f)
+            if (distance < _reachThreshold)
             {
                 _player.SetMoveInput(Vector2.zero);
                 return;

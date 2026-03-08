@@ -19,6 +19,10 @@ namespace SnackAttack.Core
         [SerializeField] private LevelDatabaseSO levelDatabase;
         [SerializeField] private AIDifficultySO aiDifficulty;
         [SerializeField] private AudioSettingsSO audioSettings;
+        [SerializeField] private UIColorsSO uiColors;
+        [SerializeField] private CelebrationSettingsSO celebrationSettings;
+        [SerializeField] private UILayoutSO uiLayout;
+        [SerializeField] private ControlsSO controls;
 
         public GameSettingsSO GameSettings => gameSettings;
         public CharacterDatabaseSO CharacterDatabase => characterDatabase;
@@ -26,6 +30,10 @@ namespace SnackAttack.Core
         public LevelDatabaseSO LevelDatabase => levelDatabase;
         public AIDifficultySO AIDifficulty => aiDifficulty;
         public AudioSettingsSO AudioSettings => audioSettings;
+        public UIColorsSO UIColors => uiColors;
+        public CelebrationSettingsSO CelebrationSettings => celebrationSettings;
+        public UILayoutSO UILayout => uiLayout;
+        public ControlsSO Controls => controls;
 
         public GameStateMachine StateMachine { get; private set; }
 
