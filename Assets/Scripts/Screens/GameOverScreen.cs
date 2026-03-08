@@ -205,7 +205,7 @@ namespace SnackAttack.Screens
             string selectSnd = _controls != null ? _controls.selectSound : "select";
 
             // Keyboard
-            if (InputsManager.InputNegativeDown(vAxis))
+            if (InputsManager.InputNegativeHold(vAxis) || InputsManager.InputNegativeDown(vAxis))
             {
                 // Down
                 if (_selectedOption < 1)
@@ -215,7 +215,7 @@ namespace SnackAttack.Screens
                     PlaySound(selectSnd);
                 }
             }
-            else if (InputsManager.InputPositiveDown(vAxis))
+            else if (InputsManager.InputPositiveHold(vAxis) || InputsManager.InputPositiveDown(vAxis))
             {
                 // Up
                 if (_selectedOption > 0)

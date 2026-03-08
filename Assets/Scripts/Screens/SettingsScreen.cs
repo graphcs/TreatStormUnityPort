@@ -126,11 +126,11 @@ namespace SnackAttack.Screens
             string submitAction = _controls != null ? _controls.submitAction : "Submit";
             string cancelAction = _controls != null ? _controls.cancelAction : "Cancel";
 
-            if (InputsManager.InputNegativeDown(vAxis))
+            if (InputsManager.InputNegativeHold(vAxis) || InputsManager.InputNegativeDown(vAxis))
             {
                 ChangeSelection(1);
             }
-            else if (InputsManager.InputPositiveDown(vAxis))
+            else if (InputsManager.InputPositiveHold(vAxis) || InputsManager.InputPositiveDown(vAxis))
             {
                 ChangeSelection(-1);
             }
@@ -142,11 +142,11 @@ namespace SnackAttack.Screens
             {
                 GoBackToMenu();
             }
-            else if (InputsManager.InputNegativeDown(hAxis))
+            else if (InputsManager.InputNegativeHold(hAxis) || InputsManager.InputNegativeDown(hAxis))
             {
                 AdjustValue(-1);
             }
-            else if (InputsManager.InputPositiveDown(hAxis))
+            else if (InputsManager.InputPositiveHold(hAxis) || InputsManager.InputPositiveDown(hAxis))
             {
                 AdjustValue(1);
             }

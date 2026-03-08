@@ -282,7 +282,7 @@ namespace SnackAttack.Screens
             int currentSel = GetCurrentSelection();
             bool wasBack = _backSelected;
 
-            if (InputsManager.InputPositiveDown(vInput))
+            if (InputsManager.InputPositiveHold(vInput) || InputsManager.InputPositiveDown(vInput))
             {
                 // Up
                 if (_backSelected)
@@ -299,7 +299,7 @@ namespace SnackAttack.Screens
                     PlaySound(selectSnd);
                 }
             }
-            else if (InputsManager.InputNegativeDown(vInput))
+            else if (InputsManager.InputNegativeHold(vInput) || InputsManager.InputNegativeDown(vInput))
             {
                 // Down
                 if (!_backSelected)
@@ -318,7 +318,7 @@ namespace SnackAttack.Screens
                     }
                 }
             }
-            else if (InputsManager.InputNegativeDown(hInput))
+            else if (InputsManager.InputNegativeHold(hInput) || InputsManager.InputNegativeDown(hInput))
             {
                 // Left
                 if (!_backSelected && currentSel > 0)
@@ -327,7 +327,7 @@ namespace SnackAttack.Screens
                     PlaySound(selectSnd);
                 }
             }
-            else if (InputsManager.InputPositiveDown(hInput))
+            else if (InputsManager.InputPositiveHold(hInput) || InputsManager.InputPositiveDown(hInput))
             {
                 // Right
                 if (!_backSelected && currentSel < _characters.Count - 1)
