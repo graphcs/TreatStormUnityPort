@@ -157,7 +157,6 @@ namespace SnackAttack.Effects
             if (_animator == null) return;
 
             Sprite currentSprite = _animator.CurrentSprite;
-            float decayRate = 300f / 255f;
 
             for (int i = 0; i < _afterimageCount; i++)
             {

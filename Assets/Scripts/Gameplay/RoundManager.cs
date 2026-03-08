@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using SnackAttack.Core;
+using SnackAttack.Effects;
 using SnackAttack.Entities;
 using SnackAttack.Screens;
 
 namespace SnackAttack.Gameplay
 {
-    public enum RoundPhase { Inactive, Countdown, Active, RoundEnd }
+    public enum RoundPhase { Inactive, Intro, Countdown, Active, RoundEnd }
 
     public class RoundManager : MonoBehaviour, IScreen
     {
@@ -49,6 +51,13 @@ namespace SnackAttack.Gameplay
         private PlayerController _player2;
         private RectTransform _leashAnchor1;
         private RectTransform _leashAnchor2;
+
+        // Intro
+        private GameObject _introCanvasGo;
+        private RoundStartIntro _intro;
+        private bool _introPlayed;
+        private CharacterSO _p1CharCached;
+        private CharacterSO _p2CharCached;
 
         // Cached settings
         private GameSettingsSO _settings;
@@ -107,35 +116,37 @@ namespace SnackAttack.Gameplay
             _gameplayRootRect.anchoredPosition = Vector2.zero;
             _gameplayRootRect.sizeDelta = new Vector2(_settings.referenceWidth, _settings.referenceHeight);
 
+            _p1CharCached = p1Char;
+            _p2CharCached = p2Char;
+
             SetupArenas(p1Char, p2Char);
-
-            if (_background != null)
-            {
-                _background.Show(GetCurrentLevel());
-                _background.SetSinglePlayer(_isSingleDog);
-            }
-
-            if (_hud != null)
-            {
-                _hud.Initialize(this);
-                _hud.Show();
-            }
 
             EventBus.Emit(GameEvent.GameStart);
 
-            var controls = GameManager.Instance.Controls;
-            string music = controls != null ? controls.gameplayMusic : "Gameplay";
-            EventBus.Emit(GameEvent.PlayMusic, new Dictionary<string, object>
+            var introSettings = GameManager.Instance.IntroSettings;
+            if (!_introPlayed && introSettings != null)
             {
-                { "track", music }
-            });
+                // Hide background and HUD during intro
+                if (_background != null) _background.Hide();
+                if (_hud != null) _hud.Hide();
 
-            StartCountdown();
+                StartIntro(introSettings);
+            }
+            else
+            {
+                ShowBackgroundAndHUD();
+                StartCountdown();
+            }
         }
 
         public void OnExit()
         {
             _phase = RoundPhase.Inactive;
+
+            if (_introCanvasGo != null)
+                Destroy(_introCanvasGo);
+            _introCanvasGo = null;
+            _intro = null;
 
             if (_hud != null)
                 _hud.Hide();
@@ -157,6 +168,9 @@ namespace SnackAttack.Gameplay
         {
             switch (_phase)
             {
+                case RoundPhase.Intro:
+                    UpdateIntro();
+                    break;
                 case RoundPhase.Countdown:
                     UpdateCountdown();
                     break;
@@ -164,6 +178,93 @@ namespace SnackAttack.Gameplay
                     UpdateActiveRound();
                     break;
             }
+        }
+
+        // --- Intro ---
+
+        private void StartIntro(IntroSettingsSO introSettings)
+        {
+            _phase = RoundPhase.Intro;
+
+            // Create IntroCanvas (sort order 75, between GameplayCanvas=50 and UICanvas=100)
+            _introCanvasGo = new GameObject("IntroCanvas");
+            var canvas = _introCanvasGo.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 75;
+            var scaler = _introCanvasGo.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1200f, 1000f);
+            scaler.matchWidthOrHeight = 0.5f;
+            _introCanvasGo.AddComponent<GraphicRaycaster>();
+
+            var introRoot = _introCanvasGo.GetComponent<RectTransform>();
+
+            // Calculate dog target X positions based on arena layout (convert gameplay coords to intro coords)
+            float halfScreen = _settings.referenceWidth * 0.5f;
+            float dog1Size = _p1CharCached != null ? _p1CharCached.gameplaySize : 216f;
+            float dog2Size = _p2CharCached != null ? _p2CharCached.gameplaySize : 216f;
+            float dog1TargetX, dog2TargetX;
+
+            if (_isSingleDog)
+            {
+                // Single dog: center of screen
+                dog1TargetX = halfScreen - dog1Size * 0.5f;
+                dog2TargetX = -1f; // no second dog
+            }
+            else
+            {
+                // Two players: center of each arena
+                float w = _settings.arenaWidth;
+                float gap = _settings.splitScreenGap;
+                float totalW = w * 2f + gap;
+                float startX = -totalW * 0.5f;
+                float p1CenterX = startX + w * 0.5f;
+                float p2CenterX = startX + w + gap + w * 0.5f;
+                dog1TargetX = p1CenterX + halfScreen - dog1Size * 0.5f;
+                dog2TargetX = p2CenterX + halfScreen - dog2Size * 0.5f;
+            }
+
+            _intro = _introCanvasGo.AddComponent<RoundStartIntro>();
+            _intro.Initialize(introRoot, introSettings, _p1CharCached, _p2CharCached,
+                dog1TargetX, dog2TargetX);
+        }
+
+        private void UpdateIntro()
+        {
+            if (_intro != null && _intro.IsComplete)
+            {
+                _introPlayed = true;
+
+                if (_introCanvasGo != null)
+                    Destroy(_introCanvasGo);
+                _introCanvasGo = null;
+                _intro = null;
+
+                ShowBackgroundAndHUD();
+                StartCountdown();
+            }
+        }
+
+        private void ShowBackgroundAndHUD()
+        {
+            if (_background != null)
+            {
+                _background.Show(GetCurrentLevel());
+                _background.SetSinglePlayer(_isSingleDog);
+            }
+
+            if (_hud != null)
+            {
+                _hud.Initialize(this);
+                _hud.Show();
+            }
+
+            var controls = GameManager.Instance.Controls;
+            string music = controls != null ? controls.gameplayMusic : "Gameplay";
+            EventBus.Emit(GameEvent.PlayMusic, new Dictionary<string, object>
+            {
+                { "track", music }
+            });
         }
 
         // --- Setup ---

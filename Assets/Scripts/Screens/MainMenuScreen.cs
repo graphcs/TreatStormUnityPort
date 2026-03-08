@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using SnackAttack.Core;
+using SnackAttack.Effects;
 using Utilities.Inputs;
 
 namespace SnackAttack.Screens
@@ -21,6 +22,11 @@ namespace SnackAttack.Screens
         private bool _active;
         private RectTransform _indicatorRect;
         private RectTransform[] _buttonRects;
+
+        // Intro
+        private MainMenuIntro _intro;
+        private bool _introRunning;
+        private static bool _introPlayed;
 
         // Cached settings
         private UILayoutSO _layout;
@@ -95,8 +101,51 @@ namespace SnackAttack.Screens
             _controls = GM.Controls;
 
             _selectedIndex = 0;
-            _active = true;
             UpdateIndicator();
+
+            // TODO: Re-enable menu intro when ready
+            // var introSettings = GM.IntroSettings;
+            // if (!_introPlayed && introSettings != null)
+            // {
+            //     // Hide menu items during intro
+            //     SetMenuItemsVisible(false);
+            //     _introRunning = true;
+            //     _active = false;
+            //
+            //     // Create intro
+            //     var panelRect = GetComponent<RectTransform>();
+            //     var introGo = new GameObject("MainMenuIntro");
+            //     var introRect = introGo.AddComponent<RectTransform>();
+            //     introRect.SetParent(panelRect, false);
+            //     introRect.anchorMin = Vector2.zero;
+            //     introRect.anchorMax = Vector2.one;
+            //     introRect.sizeDelta = Vector2.zero;
+            //     introRect.anchoredPosition = Vector2.zero;
+            //
+            //     // Get logo rect for positioning
+            //     Rect logoR = new Rect(180f, 80f, 840f, 350f);
+            //     if (logo != null)
+            //     {
+            //         var lr = logo.rectTransform;
+            //         logoR = new Rect(
+            //             lr.anchoredPosition.x - lr.sizeDelta.x * lr.pivot.x + 600f,
+            //             -(lr.anchoredPosition.y + lr.sizeDelta.y * (1f - lr.pivot.y)),
+            //             lr.sizeDelta.x,
+            //             lr.sizeDelta.y
+            //         );
+            //     }
+            //
+            //     _intro = introGo.AddComponent<MainMenuIntro>();
+            //     _intro.Initialize(introRect, introSettings, logoR);
+            //     _intro.StartIntro();
+            // }
+            // else
+            // {
+            //     _active = true;
+            //     _introRunning = false;
+            // }
+            _active = true;
+            _introRunning = false;
 
             string bgMusic = _controls != null ? _controls.backgroundMusic : "background";
             PlayMusic(bgMusic);
@@ -105,6 +154,12 @@ namespace SnackAttack.Screens
         public override void OnExit()
         {
             _active = false;
+            _introRunning = false;
+            if (_intro != null)
+            {
+                Destroy(_intro.gameObject);
+                _intro = null;
+            }
             if (selectIndicator != null)
                 selectIndicator.enabled = false;
             base.OnExit();
@@ -112,6 +167,20 @@ namespace SnackAttack.Screens
 
         private void Update()
         {
+            if (_introRunning && _intro != null && _intro.IsComplete)
+            {
+                _introRunning = false;
+                _introPlayed = true;
+                _active = true;
+                SetMenuItemsVisible(true);
+
+                if (_intro != null)
+                {
+                    Destroy(_intro.gameObject);
+                    _intro = null;
+                }
+            }
+
             if (!_active) return;
 
             HandleKeyboardInput();
@@ -218,6 +287,24 @@ namespace SnackAttack.Screens
             float indicatorY = buttonRect.anchoredPosition.y;
 
             _indicatorRect.anchoredPosition = new Vector2(indicatorX, indicatorY);
+        }
+
+        private void SetMenuItemsVisible(bool visible)
+        {
+            if (menuContainer != null)
+                menuContainer.enabled = visible;
+            if (buttonImages != null)
+            {
+                foreach (var btn in buttonImages)
+                {
+                    if (btn != null)
+                        btn.enabled = visible;
+                }
+            }
+            if (selectIndicator != null)
+                selectIndicator.enabled = visible;
+            if (footerText != null)
+                footerText.enabled = visible;
         }
 
         private void QuitGame()

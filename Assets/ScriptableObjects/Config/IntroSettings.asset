@@ -1,0 +1,147 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cc663438072cc240b5b10f1ab686877, type: 3}
+  m_Name: IntroSettings
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.IntroSettingsSO
+  cloudsGatherDuration: 4
+  lightningStrikeDuration: 1.6
+  screenFlickerDuration: 0.9
+  dogsMarchDuration: 2.2
+  mmCloudRollInDuration: 1.85
+  mmLightningDuration: 1.15
+  mmDogsMarchDuration: 1.7
+  clearSkyTop: {r: 0.529, g: 0.808, b: 0.922, a: 1}
+  clearSkyBottom: {r: 0.392, g: 0.647, b: 0.824, a: 1}
+  stormSkyTop: {r: 0.086, g: 0.086, b: 0.149, a: 1}
+  stormSkyBottom: {r: 0.047, g: 0.047, b: 0.086, a: 1}
+  cloudLayer0Count: 4
+  cloudLayer0ScaleMin: 0.5
+  cloudLayer0ScaleMax: 0.7
+  cloudLayer0SpeedMin: 100
+  cloudLayer0SpeedMax: 170
+  cloudLayer1Count: 5
+  cloudLayer1ScaleMin: 0.4
+  cloudLayer1ScaleMax: 0.6
+  cloudLayer1SpeedMin: 150
+  cloudLayer1SpeedMax: 260
+  cloudLayer2Count: 5
+  cloudLayer2ScaleMin: 0.3
+  cloudLayer2ScaleMax: 0.5
+  cloudLayer2SpeedMin: 200
+  cloudLayer2SpeedMax: 340
+  maxRainDrops: 600
+  rainSpawnMultiplier: 200
+  rainSpeedMin: 400
+  rainSpeedMax: 700
+  rainWindMin: -60
+  rainWindMax: -100
+  rainLengthMin: 6
+  rainLengthMax: 16
+  rainColor: {r: 0.627, g: 0.686, b: 0.784, a: 0.6}
+  rainHeavyColor: {r: 0.51, g: 0.588, b: 0.706, a: 0.7}
+  stormBoltTimes:
+  - 0
+  - 0.45
+  - 0.95
+  menuBoltTimes:
+  - 0.04
+  - 0.21
+  - 0.46
+  - 0.82
+  boltDurationMin: 0.5
+  boltDurationMax: 0.7
+  lightningFlashDecay: 4
+  shakeIntensity: 12
+  shakeDecay: 7
+  boltCoreColor: {r: 0.902, g: 0.902, b: 1, a: 1}
+  boltInnerGlowColor: {r: 0.706, g: 0.745, b: 1, a: 1}
+  boltOuterGlowColor: {r: 0.471, g: 0.51, b: 0.863, a: 1}
+  flashOverlayColor: {r: 0.784, g: 0.824, b: 1, a: 0.7}
+  flickerPattern:
+  - duration: 0.06
+    intensity: 0.9
+    tempShift: 0
+  - duration: 0.04
+    intensity: 0
+    tempShift: 0
+  - duration: 0.08
+    intensity: 1
+    tempShift: 0.1
+  - duration: 0.05
+    intensity: 0
+    tempShift: 0
+  - duration: 0.04
+    intensity: 0.6
+    tempShift: -0.05
+  - duration: 0.06
+    intensity: 0
+    tempShift: 0
+  - duration: 0.1
+    intensity: 0.8
+    tempShift: 0.05
+  - duration: 0.03
+    intensity: 0.3
+    tempShift: 0
+  - duration: 0.07
+    intensity: 0
+    tempShift: 0
+  - duration: 0.12
+    intensity: 0.5
+    tempShift: -0.1
+  - duration: 0.25
+    intensity: 0
+    tempShift: 0
+  flickerShakeIntensity: 6
+  flickerShakeDecay: 5
+  dogRenderScale: 1.12
+  dogBobFrequency: 14
+  dogBobAmplitude: 3.5
+  dogTiltAmplitude: 1.5
+  dustStepDistance: 28
+  dustPuffMaxRadius: 16
+  dustPuffLifetime: 0.5
+  dustPuffColor: {r: 0.627, g: 0.549, b: 0.431, a: 0.7}
+  titleAppearT: 0.2
+  titleFullT: 0.65
+  titleFadeEndT: 0.8
+  titleWidthFraction: 0.65
+  goAppearT: 0.82
+  goWidthFraction: 0.3
+  groundYFraction: 0.91
+  bloomMaxRadius: 80
+  bloomDuration: 0.5
+  mmLeftDogId: jazzy
+  mmRightDogId: snowy
+  mmDogSize: 140
+  mmDogBobFrequency: 12
+  mmDogBobAmplitude: 4
+  mmBandPaddingX: 0.08
+  mmBandTopOffset: 28
+  mmBandHeightFraction: 0.44
+  mmLogoGlowColor: {r: 0.722, g: 0.804, b: 1, a: 0.53}
+  cloudSprite1: {fileID: 21300000, guid: d00cf01f0a8ac8a428d9729125eed4ca, type: 3}
+  cloudSprite2: {fileID: 21300000, guid: ccb0306545fda924cbd057b7a33cbff8, type: 3}
+  titleSprite: {fileID: 21300000, guid: f001affce153c474bb5eb5b9731deb31, type: 3}
+  goSprite: {fileID: 21300000, guid: a38948f9551cbce43ad3fd06cd91a0e1, type: 3}
+  groundSprite: {fileID: 21300000, guid: 1531471005cac6e419f0f322e4217399, type: 3}
+  mmCloudLayer0Count: 4
+  mmCloudLayer0ScaleMin: 0.68
+  mmCloudLayer0ScaleMax: 0.82
+  mmCloudLayer0SwaySpeed: 0.68
+  mmCloudLayer1Count: 5
+  mmCloudLayer1ScaleMin: 0.52
+  mmCloudLayer1ScaleMax: 1.04
+  mmCloudLayer1SwaySpeed: 1.04
+  mmCloudLayer2Count: 6
+  mmCloudLayer2ScaleMin: 0.38
+  mmCloudLayer2ScaleMax: 1.26
+  mmCloudLayer2SwaySpeed: 1.26

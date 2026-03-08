@@ -35,6 +35,9 @@ namespace SnackAttack.Core
         ScreenTransition,
         SettingsChanged,
 
+        // Intro
+        IntroComplete,
+
         // Audio
         PlaySound,
         PlayMusic,

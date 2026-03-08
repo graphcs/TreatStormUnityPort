@@ -337,7 +337,7 @@ namespace SnackAttack.Gameplay
             {
                 EventBus.Emit(GameEvent.PlaySound, new Dictionary<string, object>
                 {
-                    { "sound", "Thunder" }
+                    { "sound", "thunder" }
                 });
                 _thunderPlayedThisRound = true;
             }

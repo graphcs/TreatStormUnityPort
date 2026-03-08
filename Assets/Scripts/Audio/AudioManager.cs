@@ -55,7 +55,7 @@ namespace SnackAttack.Audio
                 { "broccoli", sfxBroccoli },
                 { "chilli", sfxChilli },
                 { "red_bull", sfxRedBull },
-                { "Thunder", sfxThunder },
+                { "thunder", sfxThunder },
                 { "countdown_2_3", sfxCountdown23 },
                 { "countdown_1", sfxCountdown1 },
                 { "start", sfxStart },

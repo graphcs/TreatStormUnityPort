@@ -24,6 +24,7 @@ namespace SnackAttack.Core
         [SerializeField] private UILayoutSO uiLayout;
         [SerializeField] private ControlsSO controls;
         [SerializeField] private PowerUpVisualsSO powerUpVisuals;
+        [SerializeField] private IntroSettingsSO introSettings;
 
         public GameSettingsSO GameSettings => gameSettings;
         public CharacterDatabaseSO CharacterDatabase => characterDatabase;
@@ -36,6 +37,7 @@ namespace SnackAttack.Core
         public UILayoutSO UILayout => uiLayout;
         public ControlsSO Controls => controls;
         public PowerUpVisualsSO PowerUpVisuals => powerUpVisuals;
+        public IntroSettingsSO IntroSettings => introSettings;
 
         public GameStateMachine StateMachine { get; private set; }
 
