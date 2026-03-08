@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using SnackAttack.Core;
 using SnackAttack.Entities;
+using SnackAttack.Screens;
 
 namespace SnackAttack.Gameplay
 {
@@ -9,6 +10,9 @@ namespace SnackAttack.Gameplay
 
     public class RoundManager : MonoBehaviour, IScreen
     {
+        [SerializeField] private GameplayHUD _hud;
+        [SerializeField] private GameplayBackground _background;
+
         // Match state
         private string _mode;
         private bool _vsAI;
@@ -91,6 +95,15 @@ namespace SnackAttack.Gameplay
 
             SetupArenas(p1Char, p2Char);
 
+            if (_background != null)
+                _background.Show(GetCurrentLevel());
+
+            if (_hud != null)
+            {
+                _hud.Initialize(this);
+                _hud.Show();
+            }
+
             EventBus.Emit(GameEvent.GameStart);
             EventBus.Emit(GameEvent.PlayMusic, new Dictionary<string, object>
             {
@@ -104,6 +117,11 @@ namespace SnackAttack.Gameplay
         {
             _phase = RoundPhase.Inactive;
 
+            if (_hud != null)
+                _hud.Hide();
+
+            if (_background != null)
+                _background.Hide();
 
             if (_gameplayRoot != null)
                 Destroy(_gameplayRoot);

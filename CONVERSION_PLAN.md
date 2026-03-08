@@ -36,7 +36,10 @@ graph TD
         S14[Step 14: Screen Manager & Base Screen]
         S15[Step 15: Main Menu Screen]
         S16[Step 16: Character Select Screen]
-        S17[Step 17: Gameplay HUD]
+        S17a[Step 17a: Gameplay HUD Overlay]
+        S17b[Step 17b: Gameplay Background Canvas]
+        S17c[Step 17c: Canvas-Based Entity Rendering]
+        S17d[Step 17d: Pause Menu]
         S18[Step 18: Game Over Screen]
         S19[Step 19: Settings Screen]
     end
@@ -57,7 +60,8 @@ graph TD
     S1 --> S2 --> S3 --> S4
     S4 --> S5 --> S6 --> S7
     S7 --> S8 --> S9 --> S10 --> S11 --> S12 --> S13
-    S4 --> S14 --> S15 --> S16 --> S17 --> S18 --> S19
+    S4 --> S14 --> S15 --> S16 --> S17a --> S17c --> S17d --> S18 --> S19
+    S16 --> S17b --> S17c
     S13 --> S20
     S13 --> S21
     S13 --> S22
@@ -80,6 +84,13 @@ graph TD
 | Sprites | Reuse existing PyGame PNGs, imported as Unity Sprites |
 | Audio | Unity AudioSource + AudioMixer (replaces pygame.mixer) |
 | MCP | Unity MCP tools will be used for implementation (not planning) |
+| Canvas rendering | ALL rendering is canvas-based (Screen Space - Overlay), no world-space SpriteRenderers |
+| Canvas architecture | 3 overlay canvases: BackgroundCanvas (sort 0), GameplayCanvas (sort 50), UICanvas (sort 100) |
+| Canvas scaler | All canvases use CanvasScaler 1200x1000 match=0.5 |
+| Coordinate convention | PyGame (x,y) -> Canvas anchoredPosition (x, -y) with anchor (0,1) top-left, Y negative downward |
+| Entity rendering | Entities use Image+RectTransform under GameplayCanvas, not SpriteRenderers |
+| Line rendering | UILineDrawer (custom MaskableGraphic quad strip) replaces LineRenderer for leash/lightning |
+| Collision detection | Manual Rect.Overlaps() instead of physics/Rigidbody2D |
 
 ---
 
@@ -697,30 +708,209 @@ All UI is built with legacy Canvas. Each screen is a panel (or set of panels) to
 
 ---
 
-### Step 17: Gameplay HUD
+### Step 17a: Gameplay HUD Overlay
 
-**Goal**: Build the in-game UI overlay showing scores, timer, round info, and voting UI.
+**Goal**: Build the in-game UI overlay showing scores, timer, round info, countdown, and placeholders for voting/announcements/pause.
 
 **What to create**:
-- `Scripts/Screens/GameplayHUD.cs` — extends BaseScreen (or a dedicated HUD controller).
-- Canvas overlay with score displays, round timer, and voting panel.
+- `Scripts/Screens/GameplayHUD.cs` — **Plain MonoBehaviour with CanvasGroup** (NOT BaseScreen — avoids double-registration since RoundManager is the IScreen for GameState.Gameplay).
+- RoundManager holds `[SerializeField] GameplayHUD` ref, calls `Initialize(rm)` / `Show()` / `Hide()`.
 
-**HUD elements** (from PyGame):
-- **Per-player score**: Character portrait + name + score number, positioned above each arena.
-- **Round timer**: Centered top, counts down from round duration.
-- **Round indicator**: "Round X of Y".
-- **Countdown overlay**: Large "3", "2", "1", "GO!" text during round start.
-- **Voting panel** (placeholder for Step 23): Vote type label, option buttons, vote counts, timer bar.
-- **Chat simulator panel** (placeholder for Step 23): Clickable vote buttons for local testing.
-- Battle background: `Battle screen background.png`.
-- Arena backgrounds: `Battle field 1.png`, `Battle field 2.png`.
+**Serialized fields**: roundText, timerText, winsText, p1Name/p1ScoreLabel/p1ScoreValue, p2Name/p2ScoreLabel/p2ScoreValue, countdownText, popupContainer, announcementGroup (hidden), votingMeterPlaceholder (hidden), pauseOverlay (hidden, for 17d).
 
-**Listens to events**:
-- `ScoreChanged` → updates score displays.
-- `RoundStart` / `RoundEnd` → updates round indicator and timer.
+**Logic**:
+- `Initialize(RoundManager rm)`: Cache reference, set player names from CharacterData.
+- `Show()`/`Hide()`: CanvasGroup alpha/interactable/blocksRaycasts + SetActive.
+- `Update()`: Poll RoundManager for timer/phase/countdown. Update text. During countdown, show countdown text at center `(500, -500)`; during active, hide it.
+- Subscribe to `ScoreChanged`, `PointPopupRequested` events.
+- Point popups: Instantiate temp TMP_Text under popupContainer, float upward ~50px/s for 1s, then destroy. Font size 24, white (normal) or gold (stolen).
 
-**Depends on**: Step 14 (BaseScreen), Step 13 (RoundManager emits events).
-**Produces**: Visual feedback for all gameplay state.
+**Scene hierarchy** (under UICanvas):
+```
+GameplayHUDPanel (stretch-all, CanvasGroup, GameplayHUD)
+  HUD_MenuBar (Image: Menu bar yellow.png, top-left anchor, pos 500/-234, 897x68, preserveAspect)
+    HUD_RoundText (TMP: "round 1", Daydream 20, #4D2B1F, pos 18.5/70 above bar)
+    HUD_TimerText (TMP: "60s", Daydream 20, #4D2B1F, pos 18.5/35 above bar)
+    HUD_WinsText (TMP: "0  vs  0", Daydream 28, #4D2B1F, centered on bar)
+    HUD_P1ScoreGroup (left 35%, 28px inset, P1_Name 20/P1_ScoreLabel 14/P1_ScoreValue 16, #934C30)
+    HUD_P2ScoreGroup (right 35%, mirrored)
+  HUD_Countdown (TMP: "3", Daydream 120, #FBCD64, pos 500/-500)
+  HUD_PopupContainer (stretch left 83.3% for game area)
+  HUD_AnnouncementGroup (hidden, center, text 48px/subtext 24px)
+  HUD_VotingMeterPlaceholder (hidden, 820/-147.5, 300x85)
+  HUD_PauseOverlay (hidden, stretch 83.3%)
+```
+
+**Modify**: `RoundManager.cs` — Add `[SerializeField] private GameplayHUD _hud;`. `OnEnter()`: `_hud.Initialize(this); _hud.Show();`. `OnExit()`: `_hud.Hide();`.
+
+**Depends on**: Step 14 (BaseScreen/ScreenManager), Step 13 (RoundManager emits events).
+**Produces**: Visual feedback for scores, timer, countdown during gameplay.
+
+---
+
+### Step 17b: Gameplay Background Canvas
+
+**Goal**: Create a dedicated BackgroundCanvas (sort order 0) for static gameplay backgrounds that render behind everything else.
+
+**What to create**:
+- `Scripts/Screens/GameplayBackground.cs` — Plain MonoBehaviour with CanvasGroup (NOT BaseScreen).
+- RoundManager holds `[SerializeField] GameplayBackground` ref.
+
+**Serialized fields**: background (Image), logo (Image), cloud1/cloud2 (Image), battleField1/battleField2 (Image), chatPlaceholder (RectTransform).
+
+**Logic**:
+- `Show(LevelSO level)`: Activate panel. If level has battlefieldSprite, swap battlefield images.
+- `Hide()`: Deactivate panel.
+
+**Scene hierarchy**:
+```
+BackgroundCanvas (Canvas: Overlay, sort 0, CanvasScaler 1200x1000 match=0.5)
+  GameplayPanel (stretch-all, CanvasGroup, GameplayBackground)
+    GP_Background (Image: Battle screen background.png, stretch-all)
+    GP_Logo (Image: Jazzy logo sml.png, top-center, y=-15, ~394x164, preserveAspect)
+    GP_Cloud1 (Image: Cloud 1.png, top-left anchor, ~y=-140, preserveAspect)
+    GP_Cloud2 (Image: Cloud 2.png, top-left anchor, ~y=-140, preserveAspect)
+    GP_BattleField1 (Image: Battle field 1.png, positioned over arena 1)
+    GP_BattleField2 (Image: Battle field 2.png, positioned over arena 2)
+    GP_ChatPlaceholder (right 200px placeholder)
+```
+
+**Modify**: `LevelSO.cs` — Add `public Sprite battlefieldSprite;` field.
+**Modify**: `GameSettingsSO.cs` — Update arena dimensions: `arenaWidth=515`, `arenaHeight=860`, `splitScreenGap=30` (positive value, code interprets as overlap: arena2.x = arenaWidth - gap).
+**Modify**: `RoundManager.cs` — Add `[SerializeField] private GameplayBackground _background;`. `OnEnter()`: `_background.Show(currentLevel);`. `OnExit()`: `_background.Hide();`.
+
+**Depends on**: Step 14 (ScreenManager), Step 13 (RoundManager).
+**Produces**: Static background layer for gameplay state.
+
+---
+
+### Step 17c: Canvas-Based Entity Rendering (Core Conversion)
+
+**Goal**: Convert ALL 6 entity/gameplay scripts from world-space SpriteRenderers to canvas-based UI Images under a new GameplayCanvas (sort order 50). This is the heavy lift of Step 17.
+
+**Canvas architecture**:
+
+| Canvas | Sort Order | Content |
+|--------|-----------|---------|
+| BackgroundCanvas | 0 | Static backgrounds, battlefield images, logo, clouds (from 17b) |
+| GameplayCanvas | 50 | Dynamic entities: players (Image), snacks (Image), leashes (UILineDrawer), lightning (UILineDrawer) |
+| UICanvas | 100 | Already exists. HUD overlay, menus, pause overlay |
+
+**Coordinate convention**:
+- PyGame `(x, y)` -> Canvas `anchoredPosition (x, -y)` with anchor `(0,1)`.
+- Arena bounds as `Rect(xLeft, yBottom, width, height)` (Unity Rect Y-up):
+  - Arena 1: `Rect(0, -990, 515, 860)` → xMin=0, xMax=515, yMin=-990, yMax=-130.
+  - Arena 2: `Rect(485, -990, 515, 860)` → xMin=485, xMax=1000, yMin=-990, yMax=-130.
+- `_baseMoveSpeed` = 350 px/s (was 3.5 world units).
+- `_fallSpeed` = 180 px/s (was 1.8 world units).
+- All offsets, sizes, margins in direct pixel values (no /100 conversion).
+
+**What to create**:
+- `Scripts/UI/UILineDrawer.cs` — `namespace SnackAttack.UI`, extends `MaskableGraphic`. Custom polyline renderer using quad strips in `OnPopulateMesh(VertexHelper)`. API: `SetPoints(Vector2[])`, `SetWidth(float start, float end)`, `SetLineColor(Color)`, `Clear()`. Replaces both LineRenderer usages (leash rope + arena lightning).
+
+**What to modify** (10 files):
+
+**`PlayerController.cs`**:
+- Remove `SpriteRenderer`, `BoxCollider2D` from Awake.
+- Add `RectTransform _rectTransform` cached in Awake, expose as property.
+- Change `_baseMoveSpeed`: 3.5f → 350f.
+- Change `CharacterWidth`: `hitboxSize.x / 100f` → `hitboxSize.x`.
+- Change `CollarOffset`: `(±0.05f, -0.35f)` → `(±5f, -35f)`.
+- Change `FlightHoverOffset`: `Sin()*6f/100f` → `Sin()*6f`, ceiling margin 30f.
+- Replace all `transform.position` with `_rectTransform.anchoredPosition` (Vector2).
+- `InitializeArena(Rect bounds)`: bounds in canvas pixels. Position via anchoredPosition.
+- `ProcessMovement(dt)`: `anchoredPosition += velocity * dt`, clamp to leash/arena bounds.
+
+**`CharacterAnimator.cs`**:
+- Remove `SpriteRenderer _spriteRenderer`.
+- Add child `Image _image` + `RectTransform _imageRect` (created in Awake as child GO "SpriteDisplay").
+- `_image.preserveAspect = true; _image.raycastTarget = false;`
+- `sizeDelta = new Vector2(gameplaySize, gameplaySize)`.
+- `UpdateFlip()`: `_imageRect.localScale.x = ±1` instead of `flipX`.
+- `ApplySprite()`: `_image.sprite` instead of `_spriteRenderer.sprite`.
+- `ApplyFlightVisuals()`: `_imageRect.anchoredPosition` + `_imageRect.localRotation`.
+
+**`FallingSnack.cs`**:
+- Remove `SpriteRenderer`, `CircleCollider2D`.
+- Add `Image _image`, `RectTransform _rectTransform`. Set sprite, sizeDelta ~(60,60). No collider.
+- `Update()`: `_rectTransform.anchoredPosition` for movement, Y more negative = downward.
+- Rotation via `_rectTransform.localRotation`.
+- Add `public Rect GetCollisionRect()`: Rect centered on anchoredPosition for overlap testing.
+
+**`SnackCollector.cs`**:
+- Remove `[RequireComponent(typeof(Rigidbody2D))]`, `Rigidbody2D`, `OnTriggerEnter2D`.
+- Add `Arena _arena` field + `SetArena(Arena a)`.
+- Add `Update()` with manual overlap: build player Rect from `anchoredPosition` shrunk 40px/side (PyGame inflate(-80,-80)), loop `arena.ActiveSnacks`, call `Rect.Overlaps()`.
+
+**`LeashRenderer.cs`**:
+- Remove both `LineRenderer` instances.
+- Add two `UILineDrawer` children (main + shadow), created in Awake.
+- Change anchor from `Transform` to `RectTransform`.
+- `LateUpdate()`: anchor + collar in canvas coords, parabolic curve in canvas pixels.
+- Sag: `maxSag = 30f` (was 0.3f), shadow offset: `1f` (was 0.01f).
+
+**`Arena.cs`**:
+- Replace `LineRenderer _lightningRenderer` with `UILineDrawer _lightningDrawer`.
+- No `/100` conversions: `_fallSpeed` = 180, padding 20f, variance 120f.
+- `_groundY`: `bounds.yMin + 16f`. Spawn Y: `bounds.yMax - 60f`.
+- Lightning jag: `Random.Range(-30f, 30f)`.
+- `SpawnSnackImmediate()`: Create GO with RectTransform under _snackParent, set anchoredPosition.
+
+**`RoundManager.cs`**:
+- Add `[SerializeField] private RectTransform _gameplayCanvasTransform;`.
+- `OnEnter()`: Create `_gameplayRoot` as RectTransform child of `_gameplayCanvasTransform` (stretch-fill).
+- `SetupArenas()`: Canvas-pixel dimensions directly:
+  - Arena 1: `Rect(0, -990, 515, 860)`.
+  - Arena 2: `Rect(485, -990, 515, 860)`.
+- `CreatePlayer()`: **No SpriteRenderer, BoxCollider2D, or Rigidbody2D**. GO with RectTransform (anchor top-left, pivot center, sizeDelta from gameplaySize). Components: PlayerController → CharacterAnimator → SnackCollector (call `SetArena()`) → LeashRenderer (pass RectTransform anchor) → PlayerInputHandler → AIController.
+- Leash anchor: RectTransform at arena bottom-center in canvas coords.
+
+**`AIController.cs`**:
+- All `transform.position` → `_player.RectTransform.anchoredPosition` (Vector2).
+- `_targetPosition`: Vector3 → Vector2.
+- Wander padding: 20f (was 0.2f). Reach threshold: 5f (was 0.05f). Vertical reachability: 50f (was 0.5f).
+
+**`GameSettingsSO.cs`**: `arenaWidth=515`, `arenaHeight=860`, `splitScreenGap=30`.
+**`LevelSO.cs`**: Add `public Sprite battlefieldSprite;` field.
+
+**Depends on**: Step 17a (HUD), Step 17b (Background Canvas).
+**Produces**: Fully canvas-based gameplay rendering — players, snacks, leashes, lightning all render as UI elements.
+
+---
+
+### Step 17d: Pause Menu
+
+**Goal**: Add pause functionality to GameplayHUD with ESC toggle, resume, and quit options.
+
+**Modify**: `GameplayHUD.cs` (extend with pause logic).
+
+**Additional fields**: pauseOverlay (RectTransform+CanvasGroup), pauseTitle (TMP), pauseResume (TMP), pauseQuit (TMP).
+
+**Logic**:
+- `Update()`: Check `Input.GetKeyDown(KeyCode.Escape)` (local toggle, not state machine transition).
+- `TogglePause()`: Show/hide pauseOverlay, set `Time.timeScale = 0/1`, emit `GamePaused`/`GameResumed`.
+- While paused: Enter → resume, Q → quit to MainMenu (restore timeScale first).
+- Pause overlay covers game area (left 83.3% of canvas).
+
+**Scene hierarchy** (under GameplayHUDPanel):
+```
+HUD_PauseOverlay (stretch left 83.3%, CanvasGroup, initially hidden)
+  PauseBackground (Image: black, alpha=200/255, stretch-all)
+  PauseTitle (TMP: "PAUSED", Daydream 64, #FBCD64, center, y=100 relative)
+  PauseResume (TMP: "Press ENTER to Resume", Daydream 24, white, center, y=-20)
+  PauseQuit (TMP: "Press Q to Quit", Daydream 24, white, center, y=-80)
+```
+
+**Depends on**: Step 17a (GameplayHUD exists), Step 17c (entities pause via timeScale).
+**Produces**: Pause/resume functionality during gameplay.
+
+**Implementation order**:
+```
+17a (HUD)  ──┐
+              ├──> 17c (Entity Conversion) ──> 17d (Pause)
+17b (BG)   ──┘
+```
+17a and 17b are independent and can be done in parallel. 17c depends on both (needs canvases to exist). 17d extends 17a's GameplayHUD with pause logic.
 
 ---
 

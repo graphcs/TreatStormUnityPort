@@ -14,6 +14,9 @@ namespace SnackAttack.Core
         public float roundDurationSeconds = 60f;
         public float spawnRateMultiplier = 1f;
 
+        [Header("Visuals")]
+        public Sprite battlefieldSprite;
+
         [Header("Content")]
         public SnackSO[] snackPool;
         public ObstacleDefinition[] obstacles;

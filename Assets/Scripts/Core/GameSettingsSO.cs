@@ -19,8 +19,8 @@ namespace SnackAttack.Core
         public int roundsPerGame = 1;
 
         [Header("Arena")]
-        public float arenaWidth = 350f;
-        public float arenaHeight = 450f;
-        public float splitScreenGap = 20f;
+        public float arenaWidth = 515f;
+        public float arenaHeight = 860f;
+        public float splitScreenGap = 30f;
     }
 }

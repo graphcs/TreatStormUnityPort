@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5d069ffc11ad814d913d97b7d05cf8d, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.GameSettingsSO
-  windowWidth: 1000
+  windowWidth: 1200
   windowHeight: 1000
+  referenceWidth: 1200
+  referenceHeight: 1000
   targetFPS: 60
   roundDuration: 90
-  arenaWidth: 350
-  arenaHeight: 450
-  splitScreenGap: 20
+  roundsPerGame: 1
+  arenaWidth: 515
+  arenaHeight: 860
+  splitScreenGap: 30
