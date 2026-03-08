@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using SnackAttack.Core;
 using SnackAttack.Gameplay;
+using Utilities.Inputs;
 
 namespace SnackAttack.Screens
 {
@@ -33,7 +34,12 @@ namespace SnackAttack.Screens
         [Header("Placeholders")]
         [SerializeField] private GameObject _announcementGroup;
         [SerializeField] private GameObject _votingMeterPlaceholder;
+
+        [Header("Pause Overlay")]
         [SerializeField] private GameObject _pauseOverlay;
+        [SerializeField] private TMP_Text _pauseTitle;
+        [SerializeField] private TMP_Text _pauseResume;
+        [SerializeField] private TMP_Text _pauseQuit;
 
         [Header("Font")]
         [SerializeField] private TMP_FontAsset _daydreamFont;
@@ -45,10 +51,13 @@ namespace SnackAttack.Screens
         private static readonly Color PopupPositiveColor = new Color32(81, 180, 71, 255); // #51B447
         private static readonly Color PopupNegativeColor = new Color32(222, 97, 91, 255); // #DE615B
         private static readonly Color PopupOutlineColor = Color.white;
+        private static readonly Color PauseTitleColor = new Color32(255, 200, 0, 255); // #FFC800 (PyGame exact)
 
         private CanvasGroup _canvasGroup;
         private RoundManager _roundManager;
         private bool _initialized;
+        private bool _isPaused;
+        public bool IsPaused => _isPaused;
 
         // GO! display
         private float _goTimer;
@@ -86,6 +95,8 @@ namespace SnackAttack.Screens
             _lastPhase = RoundPhase.Inactive;
             _showingGo = false;
             _goTimer = 0f;
+            _isPaused = false;
+            if (_pauseOverlay != null) _pauseOverlay.SetActive(false);
 
             // Set player names
             var p1 = rm.Player1;
@@ -135,6 +146,8 @@ namespace SnackAttack.Screens
 
         public void Hide()
         {
+            if (_isPaused) Resume();
+
             SetVisible(false);
 
             // Unsubscribe
@@ -157,6 +170,21 @@ namespace SnackAttack.Screens
         {
             if (!_initialized || _roundManager == null)
                 return;
+
+            // Pause input (Input.GetKeyDown works at timeScale=0)
+            if (InputsManager.InputDown("Cancel"))
+            {
+                if (_isPaused) Resume();
+                else Pause();
+                return;
+            }
+
+            if (_isPaused)
+            {
+                if (InputsManager.InputDown("Submit")) Resume();
+                else if (InputsManager.InputDown("Quit")) QuitToMenu();
+                return; // skip all HUD updates while paused
+            }
 
             var phase = _roundManager.CurrentPhase;
 
@@ -374,6 +402,32 @@ namespace SnackAttack.Screens
             if (name != null) name.gameObject.SetActive(visible);
             if (label != null) label.gameObject.SetActive(visible);
             if (value != null) value.gameObject.SetActive(visible);
+        }
+
+        // --- Pause ---
+
+        private void Pause()
+        {
+            _isPaused = true;
+            Time.timeScale = 0f;
+            if (_pauseOverlay != null) _pauseOverlay.SetActive(true);
+            EventBus.Emit(GameEvent.GamePaused);
+        }
+
+        private void Resume()
+        {
+            _isPaused = false;
+            Time.timeScale = 1f;
+            if (_pauseOverlay != null) _pauseOverlay.SetActive(false);
+            EventBus.Emit(GameEvent.GameResumed);
+        }
+
+        private void QuitToMenu()
+        {
+            _isPaused = false;
+            Time.timeScale = 1f; // restore before transition
+            if (_pauseOverlay != null) _pauseOverlay.SetActive(false);
+            GameManager.Instance.StateMachine.ChangeState(GameState.MainMenu);
         }
 
         private void OnDestroy()

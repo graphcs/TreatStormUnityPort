@@ -82,7 +82,7 @@ namespace SnackAttack.Screens
                 _cloud1X += CloudSpeed * dt;
                 // Wrap around when cloud drifts off right side
                 float cloudWidth = _cloud1Rect.sizeDelta.x;
-                if (_cloud1X > 1000f + cloudWidth)
+                if (_cloud1X > 1200f + cloudWidth)
                     _cloud1X = -cloudWidth;
                 var pos = _cloud1Rect.anchoredPosition;
                 pos.x = _cloud1X;
@@ -94,7 +94,7 @@ namespace SnackAttack.Screens
                 _cloud2X -= CloudSpeed * 0.7f * dt; // Cloud 2 drifts opposite, slower
                 float cloudWidth = _cloud2Rect.sizeDelta.x;
                 if (_cloud2X < -cloudWidth)
-                    _cloud2X = 1000f + cloudWidth;
+                    _cloud2X = 1200f + cloudWidth;
                 var pos = _cloud2Rect.anchoredPosition;
                 pos.x = _cloud2X;
                 _cloud2Rect.anchoredPosition = pos;
