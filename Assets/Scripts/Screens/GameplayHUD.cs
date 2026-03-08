@@ -44,6 +44,10 @@ namespace SnackAttack.Screens
         [Header("Font")]
         [SerializeField] private TMP_FontAsset _daydreamFont;
 
+        [Header("Announcement")]
+        [SerializeField] private TMP_Text _announcementText;
+        [SerializeField] private TMP_Text _announcementSubtext;
+
         private CanvasGroup _canvasGroup;
         private RoundManager _roundManager;
         private bool _initialized;
@@ -57,6 +61,10 @@ namespace SnackAttack.Screens
 
         // Popup tracking
         private readonly List<PointPopup> _activePopups = new();
+
+        // Announcement
+        private float _announcementTimer;
+        private bool _showingAnnouncement;
 
         // Cached settings
         private GameSettingsSO _settings;
@@ -245,6 +253,14 @@ namespace SnackAttack.Screens
 
             // Update popups
             UpdatePopups();
+
+            // Update announcement
+            if (_showingAnnouncement)
+            {
+                _announcementTimer -= Time.deltaTime;
+                if (_announcementTimer <= 0f)
+                    HideAnnouncement();
+            }
         }
 
         private void UpdateCountdownDisplay()
@@ -426,6 +442,47 @@ namespace SnackAttack.Screens
             if (name != null) name.gameObject.SetActive(visible);
             if (label != null) label.gameObject.SetActive(visible);
             if (value != null) value.gameObject.SetActive(visible);
+        }
+
+        // --- Announcement ---
+
+        public void ShowAnnouncement(string text, Color color, float duration = 2.5f)
+        {
+            if (_announcementGroup != null)
+                _announcementGroup.SetActive(true);
+
+            if (_announcementText != null)
+            {
+                _announcementText.text = text;
+                _announcementText.color = color;
+                _announcementText.gameObject.SetActive(true);
+            }
+
+            _announcementTimer = duration;
+            _showingAnnouncement = true;
+        }
+
+        public void ShowAnnouncement(string text, string subtext, Color color, float duration = 2.5f)
+        {
+            ShowAnnouncement(text, color, duration);
+
+            if (_announcementSubtext != null)
+            {
+                _announcementSubtext.text = subtext;
+                _announcementSubtext.color = color;
+                _announcementSubtext.gameObject.SetActive(true);
+            }
+        }
+
+        private void HideAnnouncement()
+        {
+            _showingAnnouncement = false;
+            if (_announcementGroup != null)
+                _announcementGroup.SetActive(false);
+            if (_announcementText != null)
+                _announcementText.gameObject.SetActive(false);
+            if (_announcementSubtext != null)
+                _announcementSubtext.gameObject.SetActive(false);
         }
 
         // --- Pause ---

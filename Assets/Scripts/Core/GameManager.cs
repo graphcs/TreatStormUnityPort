@@ -25,6 +25,7 @@ namespace SnackAttack.Core
         [SerializeField] private ControlsSO controls;
         [SerializeField] private PowerUpVisualsSO powerUpVisuals;
         [SerializeField] private IntroSettingsSO introSettings;
+        [SerializeField] private VotingSettingsSO votingSettings;
 
         public GameSettingsSO GameSettings => gameSettings;
         public CharacterDatabaseSO CharacterDatabase => characterDatabase;
@@ -38,6 +39,7 @@ namespace SnackAttack.Core
         public ControlsSO Controls => controls;
         public PowerUpVisualsSO PowerUpVisuals => powerUpVisuals;
         public IntroSettingsSO IntroSettings => introSettings;
+        public VotingSettingsSO VotingSettings => votingSettings;
 
         public GameStateMachine StateMachine { get; private set; }
 

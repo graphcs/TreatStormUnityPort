@@ -41,6 +41,11 @@ namespace SnackAttack.Core
         // Audio
         PlaySound,
         PlayMusic,
-        StopMusic
+        StopMusic,
+
+        // Voting / Crowd Chaos
+        CrowdChaosStarted,
+        VotingStarted,
+        VotingEnded
     }
 }

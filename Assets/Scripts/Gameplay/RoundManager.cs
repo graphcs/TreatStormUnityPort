@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using SnackAttack.Core;
 using SnackAttack.Effects;
 using SnackAttack.Entities;
+using SnackAttack.Interaction;
 using SnackAttack.Screens;
 
 namespace SnackAttack.Gameplay
@@ -15,6 +16,11 @@ namespace SnackAttack.Gameplay
         [SerializeField] private GameplayHUD _hud;
         [SerializeField] private GameplayBackground _background;
         [SerializeField] private RectTransform _gameplayCanvasTransform;
+
+        [Header("Voting")]
+        [SerializeField] private ChatSimulator _chatSimulator;
+        [SerializeField] private VotingMeter _votingMeter;
+        [SerializeField] private CrowdChaosOverlay _chaosOverlay;
 
         // Match state
         private string _mode;
@@ -35,10 +41,13 @@ namespace SnackAttack.Gameplay
         private int _countdownValue;
         private float _countdownTimer;
 
-        // Crowd Chaos stub (Step 23)
+        // Crowd Chaos / Voting
         private bool _crowdChaosTriggered;
         private bool _crowdChaosCountdownActive;
         private float _crowdChaosCountdownTimer;
+        private VotingSystem _votingSystem;
+        private VotingSettingsSO _votingSettings;
+        private bool _votingActive;
 
         // Scene objects (created dynamically)
         private GameObject _gameplayRoot;
@@ -121,6 +130,35 @@ namespace SnackAttack.Gameplay
 
             SetupArenas(p1Char, p2Char);
 
+            // Initialize voting system
+            _votingSettings = GameManager.Instance.VotingSettings;
+            if (_votingSettings != null)
+            {
+                _votingSystem = new VotingSystem(
+                    _votingSettings.votingDuration,
+                    _votingSettings.cooldownDuration);
+                _votingSystem.OnVotingResolved = OnVoteResolved;
+                _votingSystem.OnCooldownExpired = OnVotingCooldownExpired;
+
+                // Find Daydream font for voting UI
+                TMPro.TMP_FontAsset votingFont = null;
+                if (_hud != null)
+                {
+                    var fontField = typeof(GameplayHUD).GetField("_daydreamFont",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (fontField != null)
+                        votingFont = fontField.GetValue(_hud) as TMPro.TMP_FontAsset;
+                }
+
+                if (_chaosOverlay != null)
+                    _chaosOverlay.Initialize(_votingSettings);
+                if (_votingMeter != null)
+                    _votingMeter.Initialize(_votingSystem, _votingSettings, votingFont);
+                if (_chatSimulator != null)
+                    _chatSimulator.Initialize(_votingSystem, _votingSettings, votingFont);
+            }
+            _votingActive = false;
+
             EventBus.Emit(GameEvent.GameStart);
 
             var introSettings = GameManager.Instance.IntroSettings;
@@ -142,6 +180,14 @@ namespace SnackAttack.Gameplay
         public void OnExit()
         {
             _phase = RoundPhase.Inactive;
+
+            CleanupVotingUI();
+            if (_votingSystem != null)
+            {
+                _votingSystem.OnVotingResolved = null;
+                _votingSystem.Reset();
+                _votingSystem = null;
+            }
 
             if (_introCanvasGo != null)
                 Destroy(_introCanvasGo);
@@ -443,6 +489,12 @@ namespace SnackAttack.Gameplay
 
         // --- Round Lifecycle ---
 
+        // Cached voting config for this round
+        private VoteMode _crowdChaosMode;
+        private string[] _crowdChaosOptions;
+        private string _crowdChaosCorrectAnswer;
+        private string _currentTriviaQuestion;
+
         private void StartRound()
         {
             _phase = RoundPhase.Active;
@@ -466,6 +518,9 @@ namespace SnackAttack.Gameplay
                 _arena2.SetSpawningEnabled(true);
             }
 
+            // Configure voting mode for this round (PyGame: done in _start_round)
+            ConfigureVotingForRound();
+
             EventBus.Emit(GameEvent.RoundStart, new Dictionary<string, object>
             {
                 { "round", _currentRound },
@@ -474,9 +529,78 @@ namespace SnackAttack.Gameplay
             });
         }
 
+        private void ConfigureVotingForRound()
+        {
+            if (_votingSystem == null || _votingSettings == null) return;
+
+            var snackDb = GameManager.Instance.SnackDatabase;
+
+            if (_currentRound == 1)
+            {
+                // R1: Treat vote — use snack IDs (PyGame: s.get("id", "snack"))
+                var snacks = snackDb.snacks;
+                var choices = new List<string>();
+                var usedIds = new HashSet<string>();
+                int attempts = 0;
+                while (choices.Count < 3 && attempts < 20)
+                {
+                    var s = snackDb.GetWeightedRandom();
+                    if (s != null && !usedIds.Contains(s.id))
+                    {
+                        choices.Add(s.id);
+                        usedIds.Add(s.id);
+                    }
+                    attempts++;
+                }
+                if (choices.Count == 0) return;
+
+                _crowdChaosMode = VoteMode.Treat;
+                _crowdChaosOptions = choices.ToArray();
+                _crowdChaosCorrectAnswer = null;
+                _currentTriviaQuestion = null;
+
+                if (_chatSimulator != null)
+                    _chatSimulator.AddMessage("System", "R1 CHAOS: TREAT VOTE",
+                        _votingSettings.systemRoundInfoColor);
+            }
+            else if (_currentRound == 2)
+            {
+                // R2: Action vote
+                _crowdChaosMode = VoteMode.Action;
+                _crowdChaosOptions = new[] { "extend", "yank" };
+                _crowdChaosCorrectAnswer = null;
+                _currentTriviaQuestion = null;
+
+                if (_chatSimulator != null)
+                    _chatSimulator.AddMessage("System", "R2 CHAOS: YANK/EXTEND",
+                        _votingSettings.systemRoundInfoColor);
+            }
+            else
+            {
+                // R3+: Trivia
+                var questions = _votingSettings.triviaQuestions;
+                if (questions == null || questions.Length == 0) return;
+                var q = questions[Random.Range(0, questions.Length)];
+
+                _crowdChaosMode = VoteMode.Trivia;
+                _crowdChaosOptions = q.options;
+                _crowdChaosCorrectAnswer = q.correctAnswer;
+                _currentTriviaQuestion = q.question;
+
+                if (_chatSimulator != null)
+                    _chatSimulator.AddMessage("System", "R3 CHAOS: TRIVIA",
+                        _votingSettings.systemTriviaColor);
+            }
+
+            // Configure voting system in advance with single_vote_mode=true (PyGame: activate=False)
+            _votingSystem.SetMode(_crowdChaosMode, _crowdChaosOptions,
+                _crowdChaosCorrectAnswer, singleVoteMode: true);
+        }
+
         private void UpdateActiveRound()
         {
-            _roundTimer -= Time.deltaTime;
+            float dt = Time.deltaTime;
+            _roundTimer -= dt;
 
             float elapsed = _roundDuration - _roundTimer;
             float chaosThreshold = _settings.crowdChaosThreshold;
@@ -488,9 +612,15 @@ namespace SnackAttack.Gameplay
 
             if (_crowdChaosCountdownActive)
             {
-                _crowdChaosCountdownTimer -= Time.deltaTime;
+                _crowdChaosCountdownTimer -= dt;
                 if (_crowdChaosCountdownTimer <= 0f)
                     ActivateCrowdChaos();
+            }
+
+            // Tick voting system
+            if (_votingSystem != null && _votingActive)
+            {
+                _votingSystem.Update(dt);
             }
 
             if (_roundTimer <= 0f)
@@ -502,19 +632,238 @@ namespace SnackAttack.Gameplay
 
         private void StartCrowdChaosCountdown()
         {
-            _crowdChaosTriggered = true;
+            // PyGame: guard against double-trigger
+            if (_crowdChaosTriggered || _crowdChaosCountdownActive) return;
+
             _crowdChaosCountdownActive = true;
             _crowdChaosCountdownTimer = _settings.crowdChaosCountdown;
+
+            EventBus.Emit(GameEvent.CrowdChaosStarted);
+
+            if (_chaosOverlay != null)
+                _chaosOverlay.StartCountdown(_settings.crowdChaosCountdown);
+
+            // Show chat panel during countdown (PyGame shows chat here)
+            if (_chatSimulator != null)
+            {
+                _chatSimulator.Show();
+                _chatSimulator.AddMessage("System", "CROWD CHAOS INCOMING!",
+                    _votingSettings.systemIncomingColor);
+            }
         }
 
         private void ActivateCrowdChaos()
         {
+            // PyGame: guard against double-trigger
+            if (_crowdChaosTriggered) return;
+
+            _crowdChaosTriggered = true;
             _crowdChaosCountdownActive = false;
+
+            if (_votingSystem == null || _votingSettings == null) return;
+
+            // Start the voting window (mode was already configured in ConfigureVotingForRound)
+            _votingSystem.StartVotingWindow();
+            _votingActive = true;
+
+            EventBus.Emit(GameEvent.VotingStarted);
+
+            // Build colors array for options
+            var options = _crowdChaosOptions;
+            Color[] colors = new Color[options.Length];
+            for (int i = 0; i < options.Length; i++)
+                colors[i] = _votingSettings.barColors[i % _votingSettings.barColors.Length];
+
+            // PyGame: show trivia question in chat when chaos activates
+            if (_chatSimulator != null)
+            {
+                if (_crowdChaosMode == VoteMode.Trivia && !string.IsNullOrEmpty(_currentTriviaQuestion))
+                {
+                    _chatSimulator.AddMessage("System", $"TRIVIA: {_currentTriviaQuestion}",
+                        _votingSettings.systemTriviaColor);
+                }
+                _chatSimulator.AddMessage("System", "CROWD CHAOS LIVE! VOTE NOW",
+                    _votingSettings.systemLiveColor);
+            }
+
+            // PyGame: show "CROWD CHAOS!" announcement
+            if (_hud != null)
+                _hud.ShowAnnouncement("CROWD CHAOS!",
+                    _votingSettings.announceChaosColor, 1.5f);
+
+            // Show overlay in live mode
+            if (_chaosOverlay != null)
+                _chaosOverlay.StartLive(options);
+
+            // Setup and show voting meter
+            if (_votingMeter != null)
+            {
+                _votingMeter.SetOptions(options, colors);
+                _votingMeter.Show();
+            }
+
+            // Setup chat vote buttons
+            if (_chatSimulator != null)
+                _chatSimulator.SetVoteOptions(options, colors);
+        }
+
+        private void OnVoteResolved(int winnerIdx, string winnerOption)
+        {
+            if (_votingSettings == null) return;
+
+            var mode = _votingSystem.Mode;
+
+            EventBus.Emit(GameEvent.VotingEnded, new Dictionary<string, object>
+            {
+                { "mode", mode.ToString() },
+                { "winner", winnerOption },
+                { "winnerIndex", winnerIdx }
+            });
+
+            switch (mode)
+            {
+                case VoteMode.Action:
+                    if (string.Equals(winnerOption, "extend", System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        float crossDist = _votingSettings.extendCrossDistance;
+                        if (_arena2 != null && _player2 != null)
+                        {
+                            // PyGame: p1_cross_max = arena2.bounds.left + 150
+                            float p1Cross = _arena2.Bounds.xMin + crossDist;
+                            _player1.ExtendLeash(p1Cross);
+
+                            // PyGame: p2_cross_max = arena1.bounds.right + 150
+                            float p2Cross = _arena1.Bounds.xMax + crossDist;
+                            _player2.ExtendLeash(p2Cross);
+
+                            if (_chatSimulator != null)
+                            {
+                                _chatSimulator.AddMessage("System", "LEASH EXTENDED!",
+                                    _votingSettings.actionExtendColor);
+                                _chatSimulator.AddMessage("System", "Dogs can CROSS!",
+                                    _votingSettings.actionExtendColor2);
+                            }
+                            if (_hud != null)
+                                _hud.ShowAnnouncement("UNLEASHED!",
+                                    _votingSettings.announceGreenColor);
+                        }
+                        else
+                        {
+                            // Single player: just extend
+                            _player1.ExtendLeash();
+                            if (_chatSimulator != null)
+                            {
+                                _chatSimulator.AddMessage("System", "LEASH EXTENDED!",
+                                    _votingSettings.actionExtendColor);
+                                _chatSimulator.AddMessage("System", "More room to roam!",
+                                    _votingSettings.actionExtendColor2);
+                            }
+                            if (_hud != null)
+                                _hud.ShowAnnouncement("LEASH EXTENDED!",
+                                    _votingSettings.announceGreenColor);
+                        }
+                    }
+                    else // yank
+                    {
+                        if (_player1 != null) _player1.YankLeash();
+                        if (_player2 != null) _player2.YankLeash();
+                        if (_chatSimulator != null)
+                            _chatSimulator.AddMessage("System", "LEASH YANKED!",
+                                _votingSettings.actionYankColor);
+                        if (_hud != null)
+                            _hud.ShowAnnouncement("LEASH YANKED!",
+                                _votingSettings.announceRedColor);
+                    }
+                    break;
+
+                case VoteMode.Treat:
+                    // PyGame: match by snack ID (case-insensitive)
+                    var snackDb = GameManager.Instance.SnackDatabase;
+                    SnackSO votedSnack = null;
+                    foreach (var s in snackDb.snacks)
+                    {
+                        if (string.Equals(s.id, winnerOption, System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            votedSnack = s;
+                            break;
+                        }
+                    }
+                    if (votedSnack != null)
+                    {
+                        float scale = _votingSettings.treatDropScale;
+                        _arena1.StartVotedFoodPhase(votedSnack, scale);
+                        if (_arena2 != null)
+                            _arena2.StartVotedFoodPhase(votedSnack, scale);
+                        // PyGame: announcement color (100, 200, 255) light blue
+                        if (_hud != null)
+                            _hud.ShowAnnouncement($"{winnerOption.ToUpper()} DROP!",
+                                _votingSettings.announceLightBlueColor);
+                    }
+                    break;
+
+                case VoteMode.Trivia:
+                    string correctAnswer = _votingSystem.CorrectTriviaAnswer;
+                    bool correct = string.Equals(winnerOption, correctAnswer,
+                        System.StringComparison.OrdinalIgnoreCase);
+                    if (correct)
+                    {
+                        float mag = _votingSettings.triviaSpeedMagnitude;
+                        float dur = _votingSettings.triviaSpeedDuration;
+                        if (_player1 != null)
+                            _player1.ApplyEffect(EffectType.SpeedBoost, mag, dur);
+                        if (_player2 != null)
+                            _player2.ApplyEffect(EffectType.SpeedBoost, mag, dur);
+                        if (_chatSimulator != null)
+                            _chatSimulator.AddMessage("System", "CORRECT ANSWER!",
+                                _votingSettings.triviaCorrectChatColor);
+                        if (_hud != null)
+                            _hud.ShowAnnouncement("CORRECT! SPEED UP!",
+                                _votingSettings.announceTriviaCorrectColor);
+                    }
+                    else
+                    {
+                        if (_chatSimulator != null)
+                            _chatSimulator.AddMessage("System", $"Ans: {correctAnswer}",
+                                _votingSettings.triviaWrongChatColor);
+                        if (_hud != null)
+                            _hud.ShowAnnouncement("WRONG ANSWER!",
+                                _votingSettings.announceTriviaWrongColor);
+                    }
+                    break;
+            }
+
+            // Hide overlay after resolution (meter stays showing result during cooldown)
+            if (_chaosOverlay != null)
+                _chaosOverlay.Hide();
+        }
+
+        private void OnVotingCooldownExpired()
+        {
+            // PyGame: crowd_chaos_active = False after cooldown
+            // In single_vote_mode, also reset triggered flag
+            _votingActive = false;
+            CleanupVotingUI();
+        }
+
+        private void CleanupVotingUI()
+        {
+            if (_chaosOverlay != null) _chaosOverlay.Hide();
+            if (_votingMeter != null) _votingMeter.Hide();
+            if (_chatSimulator != null)
+            {
+                _chatSimulator.ClearVoting();
+                _chatSimulator.Hide();
+            }
+            _votingActive = false;
         }
 
         private void EndRound()
         {
             _phase = RoundPhase.RoundEnd;
+
+            CleanupVotingUI();
+            if (_votingSystem != null)
+                _votingSystem.Reset();
 
             _arena1.SetSpawningEnabled(false);
             if (_arena2 != null) _arena2.SetSpawningEnabled(false);

@@ -24,9 +24,9 @@ namespace SnackAttack.Screens
         private RectTransform[] _buttonRects;
 
         // Intro
-        private MainMenuIntro _intro;
-        private bool _introRunning;
-        private static bool _introPlayed;
+        // private MainMenuIntro _intro;
+        // private bool _introRunning;
+        // private static bool _introPlayed;
 
         // Cached settings
         private UILayoutSO _layout;
@@ -145,7 +145,7 @@ namespace SnackAttack.Screens
             //     _introRunning = false;
             // }
             _active = true;
-            _introRunning = false;
+            // _introRunning = false;
 
             string bgMusic = _controls != null ? _controls.backgroundMusic : "background";
             PlayMusic(bgMusic);
@@ -154,12 +154,12 @@ namespace SnackAttack.Screens
         public override void OnExit()
         {
             _active = false;
-            _introRunning = false;
-            if (_intro != null)
-            {
-                Destroy(_intro.gameObject);
-                _intro = null;
-            }
+            // _introRunning = false;
+            // if (_intro != null)
+            // {
+            //     Destroy(_intro.gameObject);
+            //     _intro = null;
+            // }
             if (selectIndicator != null)
                 selectIndicator.enabled = false;
             base.OnExit();
@@ -167,19 +167,19 @@ namespace SnackAttack.Screens
 
         private void Update()
         {
-            if (_introRunning && _intro != null && _intro.IsComplete)
-            {
-                _introRunning = false;
-                _introPlayed = true;
-                _active = true;
-                SetMenuItemsVisible(true);
+            // if (_introRunning && _intro != null && _intro.IsComplete)
+            // {
+            //     _introRunning = false;
+            //     _introPlayed = true;
+            //     _active = true;
+            //     SetMenuItemsVisible(true);
 
-                if (_intro != null)
-                {
-                    Destroy(_intro.gameObject);
-                    _intro = null;
-                }
-            }
+            //     if (_intro != null)
+            //     {
+            //         Destroy(_intro.gameObject);
+            //         _intro = null;
+            //     }
+            // }
 
             if (!_active) return;
 
@@ -289,7 +289,7 @@ namespace SnackAttack.Screens
             _indicatorRect.anchoredPosition = new Vector2(indicatorX, indicatorY);
         }
 
-        private void SetMenuItemsVisible(bool visible)
+        /*private void SetMenuItemsVisible(bool visible)
         {
             if (menuContainer != null)
                 menuContainer.enabled = visible;
@@ -305,7 +305,7 @@ namespace SnackAttack.Screens
                 selectIndicator.enabled = visible;
             if (footerText != null)
                 footerText.enabled = visible;
-        }
+        }*/
 
         private void QuitGame()
         {

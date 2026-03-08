@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92d1cb541be9f1e47a328072b71ecb20, type: 3}
+  m_Name: VotingSettings
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.VotingSettingsSO
+  votingDuration: 10
+  cooldownDuration: 10
+  winnerDisplayDuration: 3
+  autoVoteInterval: 2
+  autoVoteVariance: 0.5
+  maxVisibleMessages: 12
+  messageRowHeight: 16
+  extendCrossDistance: 150
+  yankFlashDuration: 0.3
+  treatDropScale: 1.5
+  triviaSpeedMagnitude: 2
+  triviaSpeedDuration: 5
+  chaosTintColor: {r: 0.8627451, g: 0.15686275, b: 0.15686275, a: 1}
+  chaosTintAlpha: 0.29411766
+  pulseCycleMs: 500
+  pulseAlphaMin: 0.85
+  pulseAlphaMax: 1
+  countdownScalePulseCycleMs: 400
+  countdownScaleMin: 1
+  countdownScaleMax: 1.08
+  meterPosition: {x: 900, y: -105}
+  meterSize: {x: 300, y: 85}
+  meterBorderColor: {r: 0.3019608, g: 0.16862746, b: 0.12156863, a: 1}
+  barColors:
+  - {r: 0.318, g: 0.706, b: 0.278, a: 1}
+  - {r: 0.867, g: 0.267, b: 0.239, a: 1}
+  - {r: 0.314, g: 0.627, b: 0.863, a: 1}
+  - {r: 0.863, g: 0.706, b: 0.235, a: 1}
+  barBgColors:
+  - {r: 0.725, g: 0.906, b: 0.78, a: 1}
+  - {r: 0.729, g: 0.561, b: 0.569, a: 1}
+  - {r: 0.706, g: 0.824, b: 0.941, a: 1}
+  - {r: 0.941, g: 0.863, b: 0.627, a: 1}
+  barHeight: 20
+  barGap: 10
+  chatBgColor: {r: 0.09803922, g: 0.09803922, b: 0.13725491, a: 1}
+  chatBorderColor: {r: 0.3137255, g: 0.3137255, b: 0.39215687, a: 1}
+  chatHeaderBgColor: {r: 0.15686275, g: 0.15686275, b: 0.21568628, a: 1}
+  chatPanelWidth: 200
+  chatHeaderHeight: 35
+  triviaQuestions:
+  - question: Who loves lasagna?
+    options:
+    - Jazzy
+    - Biggie
+    - Prissy
+    - Snowy
+    correctIndex: 0
+    correctAnswer: Jazzy
+  - question: What falls from sky?
+    options:
+    - Snacks
+    - Rain
+    - Cats
+    - Rocks
+    correctIndex: 0
+    correctAnswer: Snacks
+  - question: Best pizza topping?
+    options:
+    - Cheese
+    - Pineapple
+    - Anchovy
+    - Olives
+    correctIndex: 0
+    correctAnswer: Cheese
+  - question: Game Name?
+    options:
+    - SnackAttack
+    - DogRun
+    - EatFast
+    - Fetch Master
+    correctIndex: 0
+    correctAnswer: SnackAttack
+  announceGreenColor: {r: 0.196, g: 1, b: 0.196, a: 1}
+  announceRedColor: {r: 1, g: 0.196, b: 0.196, a: 1}
+  announceLightBlueColor: {r: 0.392, g: 0.784, b: 1, a: 1}
+  announceChaosColor: {r: 1, g: 0.392, b: 0.392, a: 1}
+  announceTriviaCorrectColor: {r: 0.392, g: 1, b: 0.392, a: 1}
+  announceTriviaWrongColor: {r: 1, g: 0.392, b: 0.392, a: 1}
+  flashDuration: 0.3
+  flashAlpha: 0.588
