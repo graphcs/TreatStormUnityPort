@@ -185,8 +185,8 @@ namespace SnackAttack.Effects
                 scale.x = _player.FacingRight ? 1f : -1f;
                 _afterimageRects[i].localScale = scale;
 
-                // Alpha based on distance in history
-                float alpha = _baseAlpha * (1f - (float)(i + 1) / (_afterimageCount + 1));
+                // Alpha: gradually transparent — e.g. for 3 images: 0=75%, 1=50%, 2=25%
+                float alpha = (float)(_afterimageCount - i) / (_afterimageCount + 1);
                 _afterimages[i].color = new Color(1f, 1f, 1f, alpha);
             }
         }

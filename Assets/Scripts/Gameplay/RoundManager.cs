@@ -175,12 +175,10 @@ namespace SnackAttack.Gameplay
             float gap = _settings.splitScreenGap;
             float margin = _settings.arenaBottomMargin;
             float yMin = -(_settings.referenceHeight * 0.5f) + margin;
-            float mul = _settings.arenaSpawnMultiplier;
 
             if (_isSingleDog)
             {
                 var bounds1 = new Rect(-w / 2f, yMin, w, h);
-                var boundsA1 = new Rect(-w / 2f, yMin, w, h);
                 CreateArena(1, bounds1);
                 CreatePlayer(1, p1Char, bounds1, _arena1, _leashAnchor1, true, false);
             }
@@ -210,7 +208,11 @@ namespace SnackAttack.Gameplay
             rect.sizeDelta = Vector2.zero;
 
             var arena = go.AddComponent<Arena>();
-            arena.Initialize(bounds, level, GameManager.Instance.SnackDatabase, _gameplayRootRect);
+            float spawnMul = _settings.arenaSpawnMultiplier;
+            float spawnW = bounds.width * spawnMul;
+            float spawnInset = (bounds.width - spawnW) * 0.5f;
+            var spawnBounds = new Rect(bounds.xMin + spawnInset, bounds.yMin, spawnW, bounds.height);
+            arena.Initialize(bounds, level, GameManager.Instance.SnackDatabase, _gameplayRootRect, spawnBounds);
             arena.SetSpawningEnabled(false);
 
             // Leash anchor parented to GameplayRoot (same coord space as players)

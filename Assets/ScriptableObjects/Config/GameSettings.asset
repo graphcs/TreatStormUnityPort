@@ -18,6 +18,7 @@ MonoBehaviour:
   roundsPerGame: 1
   arenaWidth: 500
   arenaHeight: 710
+  arenaSpawnMultiplier: 0.75
   splitScreenGap: 60
   arenaBottomMargin: 10
   baseMoveSpeed: 350

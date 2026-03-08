@@ -17,6 +17,7 @@ namespace SnackAttack.Gameplay
 
         // Arena bounds (canvas-space rect)
         private Rect _bounds;
+        private Rect _spawnBounds;
         private bool _initialized;
 
         // Spawn settings (mirrors PyGame Arena defaults)
@@ -93,9 +94,11 @@ namespace SnackAttack.Gameplay
         /// Initialize the arena with bounds and level config.
         /// entityRoot is the shared GameplayRoot for snack/lightning parenting.
         /// </summary>
-        public void Initialize(Rect bounds, LevelSO level, SnackDatabaseSO database, RectTransform entityRoot)
+        public void Initialize(Rect bounds, LevelSO level, SnackDatabaseSO database, RectTransform entityRoot,
+            Rect spawnBounds)
         {
             _bounds = bounds;
+            _spawnBounds = spawnBounds;
             snackDatabase = database;
             _snackDb = database;
             _baseSpawnInterval = database.baseInterval;
@@ -217,7 +220,7 @@ namespace SnackAttack.Gameplay
                 _votedFoodSpawnTimer -= dt;
                 if (_votedFoodSpawnTimer <= 0f && _votedFoodConfig != null)
                 {
-                    float x = Random.Range(_bounds.xMin + 50f, _bounds.xMax - 50f);
+                    float x = Random.Range(_spawnBounds.xMin + 50f, _spawnBounds.xMax - 50f);
                     SpawnSnackImmediate(_votedFoodConfig, x, _pendingSnackScale);
                     _votedFoodSpawnTimer = votedInterval + Random.Range(-0.1f, 0.1f);
                 }
@@ -245,11 +248,11 @@ namespace SnackAttack.Gameplay
             if (_cloudSpawnX.HasValue)
             {
                 x = _cloudSpawnX.Value + Random.Range(-variance, variance);
-                x = Mathf.Clamp(x, _bounds.xMin + padding, _bounds.xMax - padding);
+                x = Mathf.Clamp(x, _spawnBounds.xMin + padding, _spawnBounds.xMax - padding);
             }
             else
             {
-                x = Random.Range(_bounds.xMin + padding, _bounds.xMax - padding);
+                x = Random.Range(_spawnBounds.xMin + padding, _spawnBounds.xMax - padding);
             }
 
             TriggerLightning(x);
