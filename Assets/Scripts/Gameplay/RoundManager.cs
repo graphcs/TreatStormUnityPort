@@ -68,6 +68,7 @@ namespace SnackAttack.Gameplay
         public Arena Arena1 => _arena1;
         public Arena Arena2 => _arena2;
         public string Mode => _mode;
+        public string CurrentLevelName => GetCurrentLevel()?.levelName ?? "";
 
         private void Start()
         {
@@ -169,18 +170,24 @@ namespace SnackAttack.Gameplay
 
         private void SetupArenas(CharacterSO p1Char, CharacterSO p2Char)
         {
+            float w = _settings.arenaWidth;
+            float h = _settings.arenaHeight;
+            float gap = _settings.splitScreenGap;
+            float margin = _settings.arenaBottomMargin;
+            float yMin = -(_settings.referenceHeight * 0.5f) + margin;
+
             if (_isSingleDog)
             {
-                // Single arena centered
-                var bounds1 = new Rect(-257.5f, -490f, 515f, 860f);
+                var bounds1 = new Rect(-w / 2f, yMin, w, h);
                 CreateArena(1, bounds1);
                 CreatePlayer(1, p1Char, bounds1, _arena1, _leashAnchor1, true, false);
             }
             else
             {
-                // Two arenas side by side, centered
-                var bounds1 = new Rect(-500f, -490f, 515f, 860f);
-                var bounds2 = new Rect(-15f, -490f, 515f, 860f);
+                float totalW = w * 2f - gap;
+                float startX = -totalW / 2f;
+                var bounds1 = new Rect(startX, yMin, w, h);
+                var bounds2 = new Rect(startX + w - gap, yMin, w, h);
 
                 CreateArena(1, bounds1);
                 CreateArena(2, bounds2);

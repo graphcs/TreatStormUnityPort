@@ -33,9 +33,6 @@ namespace SnackAttack.Core
         public Color createDogHover = new Color(1.0f, 0.863f, 0.314f);
 
         [Header("Leash")]
-        public Color normalColor = new Color(0.545f, 0.353f, 0.169f);
-        public Color extendedColor = new Color(0.314f, 0.784f, 0.314f);
-        public Color yankedColor = new Color(0.784f, 0.314f, 0.314f);
         public Color normalRopeColor = new Color(0.396f, 0.263f, 0.129f);
         public Color extendedRopeColor = new Color(0.235f, 0.706f, 0.235f);
         public Color yankedRopeColor = new Color(0.706f, 0.235f, 0.235f);

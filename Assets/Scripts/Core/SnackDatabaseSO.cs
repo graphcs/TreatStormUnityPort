@@ -12,7 +12,6 @@ namespace SnackAttack.Core
         public float baseInterval = 1.5f;
         public float minInterval = 0.5f;
         public int maxActive = 10;
-        public float acceleration = 0.9f;
 
         [Header("Snack Physics")]
         public float baseFallSpeed = 180f;

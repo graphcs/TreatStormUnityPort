@@ -20,7 +20,12 @@ namespace SnackAttack.Entities
         // State
         private bool _active = true;
         private bool _collected;
+        private bool _grounded;
         private float _rotationSpeed;
+        private float _timeAlive;
+        private float _despawnTime;
+        private float _flashToggleTimer;
+        private bool _flashHidden;
 
         // Cached SO values
         private float _baseSnackSize;
@@ -53,6 +58,13 @@ namespace SnackAttack.Entities
             // Random rotation
             _rotationSpeed = Random.Range(rotMin, rotMax) * (Random.value > 0.5f ? 1f : -1f);
 
+            // Despawn timer from snack data
+            _despawnTime = snackData.despawnSeconds;
+            _timeAlive = 0f;
+            _grounded = false;
+            _flashHidden = false;
+            _flashToggleTimer = 0f;
+
             // Cache RectTransform
             _rectTransform = GetComponent<RectTransform>();
 
@@ -71,16 +83,48 @@ namespace SnackAttack.Entities
         {
             if (!_active) return;
 
-            // Fall downward (canvas Y: more negative = lower)
+            float dt = Time.deltaTime;
+            _timeAlive += dt;
+
             Vector2 pos = _rectTransform.anchoredPosition;
-            pos.y -= _fallSpeed * Time.deltaTime;
-            _rectTransform.anchoredPosition = pos;
 
-            // Rotate
-            _rectTransform.Rotate(0f, 0f, _rotationSpeed * Time.deltaTime);
+            if (!_grounded)
+            {
+                // Fall downward (canvas Y: more negative = lower)
+                pos.y -= _fallSpeed * dt;
 
-            // Remove if fallen past ground level
-            if (pos.y < _groundY)
+                // Land on ground
+                if (pos.y <= _groundY)
+                {
+                    pos.y = _groundY;
+                    _grounded = true;
+                }
+
+                _rectTransform.anchoredPosition = pos;
+
+                // Rotate while falling
+                _rectTransform.Rotate(0f, 0f, _rotationSpeed * dt);
+            }
+
+            // Flash warning at 70% of despawn time
+            if (_despawnTime > 0f && _timeAlive >= _despawnTime * 0.7f)
+            {
+                _flashToggleTimer += dt;
+                if (_flashToggleTimer >= 0.1f)
+                {
+                    _flashToggleTimer = 0f;
+                    _flashHidden = !_flashHidden;
+                    if (_image != null)
+                    {
+                        var c = _image.color;
+                        c.a = _flashHidden ? 0.3f : 1f;
+                        _image.color = c;
+                    }
+                }
+            }
+
+            // Despawn after full time
+            if (_despawnTime > 0f && _timeAlive >= _despawnTime)
             {
                 Despawn();
             }

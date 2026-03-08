@@ -127,6 +127,18 @@ namespace SnackAttack.Screens
                 SetScoreGroupVisible(_p2Name, _p2ScoreLabel, _p2ScoreValue, false);
             }
 
+            // Apply colors from SO
+            if (_colors != null)
+            {
+                if (_timerText != null) _timerText.color = _colors.timerColor;
+                if (_countdownText != null) _countdownText.color = _colors.countdownColor;
+                if (_p1ScoreValue != null) _p1ScoreValue.color = _colors.scoreColor;
+                if (_p2ScoreValue != null) _p2ScoreValue.color = _colors.scoreColor;
+                if (_p1ScoreLabel != null) _p1ScoreLabel.color = _colors.scoreColor;
+                if (_p2ScoreLabel != null) _p2ScoreLabel.color = _colors.scoreColor;
+                if (_pauseTitle != null) _pauseTitle.color = _colors.pauseTitleColor;
+            }
+
             // Set initial round/wins
             UpdateRoundText();
             UpdateWinsText();
@@ -273,7 +285,10 @@ namespace SnackAttack.Screens
 
         private void UpdateRoundText()
         {
-            _roundText.text = $"round {_roundManager.CurrentRound}";
+            string levelName = _roundManager.CurrentLevelName;
+            _roundText.text = string.IsNullOrEmpty(levelName)
+                ? $"round {_roundManager.CurrentRound}"
+                : $"round {_roundManager.CurrentRound} - {levelName}";
         }
 
         private void UpdateWinsText()

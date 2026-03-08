@@ -5,23 +5,19 @@ namespace SnackAttack.Core
     [CreateAssetMenu(fileName = "GameSettings", menuName = "SnackAttack/Game Settings")]
     public class GameSettingsSO : ScriptableObject
     {
-        [Header("Window")]
-        public int windowWidth = 1200;
-        public int windowHeight = 1000;
-
         [Header("UI Reference Resolution (Canvas Scaler)")]
         public int referenceWidth = 1200;
         public int referenceHeight = 1000;
 
         [Header("Gameplay")]
         public int targetFPS = 60;
-        public float roundDuration = 90f;
         public int roundsPerGame = 1;
 
         [Header("Arena")]
         public float arenaWidth = 515f;
         public float arenaHeight = 860f;
         public float splitScreenGap = 30f;
+        public float arenaBottomMargin = 10f;
 
         [Header("Movement")]
         public float baseMoveSpeed = 350f;
@@ -42,7 +38,6 @@ namespace SnackAttack.Core
         public float hoverDecayRate = 6f;
         public float liftDecayRate = 6f;
         public float tiltDecayRate = 8f;
-        public float dampenRate = 6f;
 
         [Header("Leash")]
         public float leashEffectDuration = 8f;
