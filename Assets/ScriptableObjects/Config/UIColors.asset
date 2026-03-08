@@ -33,10 +33,13 @@ MonoBehaviour:
   backHover: {r: 0.576, g: 0.298, b: 0.188, a: 1}
   createDogDefault: {r: 0.784, g: 0.667, b: 0.235, a: 1}
   createDogHover: {r: 1, g: 0.863, b: 0.314, a: 1}
-  normalRopeColor: {r: 0.396, g: 0.263, b: 0.129, a: 1}
-  extendedRopeColor: {r: 0.235, g: 0.706, b: 0.235, a: 1}
-  yankedRopeColor: {r: 0.706, g: 0.235, b: 0.235, a: 1}
+  normalRopeColor: {r: 0.545, g: 0.353, b: 0.169, a: 1}
+  extendedRopeColor: {r: 0.314, g: 0.784, b: 0.314, a: 1}
+  yankedRopeColor: {r: 0.784, g: 0.314, b: 0.314, a: 1}
   shadowColor: {r: 0.196, g: 0.118, b: 0.078, a: 1}
+  normalHighlightColor: {r: 0.396, g: 0.263, b: 0.129, a: 1}
+  extendedHighlightColor: {r: 0.235, g: 0.706, b: 0.235, a: 1}
+  yankedHighlightColor: {r: 0.706, g: 0.235, b: 0.235, a: 1}
   sliderBackground: {r: 1, g: 1, b: 1, a: 1}
   festiveColors:
   - serializedVersion: 2

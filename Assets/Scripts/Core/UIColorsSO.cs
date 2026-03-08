@@ -33,10 +33,13 @@ namespace SnackAttack.Core
         public Color createDogHover = new Color(1.0f, 0.863f, 0.314f);
 
         [Header("Leash")]
-        public Color normalRopeColor = new Color(0.396f, 0.263f, 0.129f);
-        public Color extendedRopeColor = new Color(0.235f, 0.706f, 0.235f);
-        public Color yankedRopeColor = new Color(0.706f, 0.235f, 0.235f);
-        public Color shadowColor = new Color(0.196f, 0.118f, 0.078f);
+        public Color normalRopeColor = new Color32(139, 90, 43, 255);
+        public Color extendedRopeColor = new Color32(80, 200, 80, 255);
+        public Color yankedRopeColor = new Color32(200, 80, 80, 255);
+        public Color shadowColor = new Color32(50, 30, 20, 255);
+        public Color normalHighlightColor = new Color32(101, 67, 33, 255);
+        public Color extendedHighlightColor = new Color32(60, 180, 60, 255);
+        public Color yankedHighlightColor = new Color32(180, 60, 60, 255);
 
         [Header("Settings")]
         public Color sliderBackground = Color.white;  // #DCA556

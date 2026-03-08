@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 namespace SnackAttack.Effects
 {
+    [RequireComponent(typeof(CanvasRenderer))]
     public class UICircleDrawer : MaskableGraphic
     {
         private enum CommandType { Ring, FilledCircle, Beam }

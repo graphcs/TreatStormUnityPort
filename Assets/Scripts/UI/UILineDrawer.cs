@@ -8,6 +8,7 @@ namespace SnackAttack.UI
     /// Custom MaskableGraphic that draws polylines via quad strips.
     /// Replaces LineRenderer for canvas-based rendering (leash rope + lightning).
     /// </summary>
+    [RequireComponent(typeof(CanvasRenderer))]
     public class UILineDrawer : MaskableGraphic
     {
         private readonly List<Vector2> _points = new();
