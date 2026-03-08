@@ -366,7 +366,7 @@ namespace SnackAttack.Screens
             string selectSnd = _controls != null ? _controls.selectSound : "select";
 
             // Check cards
-            for (int i = 0; i < _cardRects.Count; i++)
+            for (int i = 0; _cardRects != null && i < _cardRects.Count; i++)
             {
                 if (RectTransformUtility.RectangleContainsScreenPoint(_cardRects[i], mousePos, null))
                 {
