@@ -16,9 +16,10 @@ MonoBehaviour:
   displayName: Jazzy
   breed: Chihuahua
   baseSpeed: 1.15
-  color: {r: 0.17647059, g: 0.15686275, b: 0.13725491, a: 1}
+  color: {r: 0.1764706, g: 0.15686275, b: 0.13725491, a: 1}
   hitboxSize: {x: 48, y: 52}
   gameplaySize: 216
+  collarOffset: {x: 22.5, y: 0}
   runSprites:
   - {fileID: 7979106544178771941, guid: d29e202d099705e4fb1d8efc6a8a3c7c, type: 3}
   - {fileID: -7003123800630630386, guid: d29e202d099705e4fb1d8efc6a8a3c7c, type: 3}

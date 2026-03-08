@@ -13,8 +13,9 @@ namespace SnackAttack.Core
         [Header("Stats")]
         public float baseSpeed = 1f;
         public Color color = Color.white;
-        public Vector2 hitboxSize = new Vector2(130, 130);
+        public Vector2 hitboxSize = new(130, 130);
         public float gameplaySize = 200f;
+        public Vector2 collarOffset = new(5f, 15f);
 
         [Header("Sprites — Animation Frames")]
         public Sprite[] runSprites;

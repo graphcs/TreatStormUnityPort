@@ -87,7 +87,7 @@ namespace SnackAttack.Entities
 
         // Collar offset from player center (PyGame: +70px right, +100px down from top-left)
         // With centered pivot on ~130px sprite: x = 70 - 65 = 5, y = 65 - 100 = -35
-        public Vector2 CollarOffset => new(_facingRight ? 5f : -5f, -35f);
+        public Vector2 CollarOffset => characterData ? new(_facingRight ? characterData.collarOffset.x : -characterData.collarOffset.x, -characterData.collarOffset.y) : new(_facingRight ? 5f : -5f, -15f);
 
         private void Awake()
         {
@@ -234,10 +234,19 @@ namespace SnackAttack.Entities
             });
         }
 
-        public void ExtendLeash(float? crossMax = null)
+        public void SetLeashBounds(float minX, float maxX)
+        {
+            _leashBaseMinX = minX;
+            _leashBaseMaxX = maxX;
+            _leashMinX = minX;
+            _leashMaxX = maxX;
+            _leashEffectTimer = 0f;
+        }
+
+        public void ExtendLeash(float? crossMax = null, float? duration = null)
         {
             float extendFraction = Settings != null ? Settings.leashExtendFraction : 0.15f;
-            float effectDuration = Settings != null ? Settings.leashEffectDuration : 8f;
+            float effectDuration = duration ?? (Settings != null ? Settings.leashEffectDuration : 8f);
 
             if (crossMax.HasValue)
                 _leashMaxX = crossMax.Value;
@@ -247,16 +256,23 @@ namespace SnackAttack.Entities
             _leashEffectTimer = effectDuration;
         }
 
-        public void YankLeash()
+        public void YankLeash(float? yankedMaxX = null, float? duration = null)
         {
             float yankFraction = Settings != null ? Settings.leashYankFraction : 0.35f;
-            float effectDuration = Settings != null ? Settings.leashEffectDuration : 8f;
+            float effectDuration = duration ?? (Settings != null ? Settings.leashEffectDuration : 8f);
 
-            float minRange = VisualSize * 2f;
-            _leashMaxX = Mathf.Max(
-                _leashBaseMaxX - _arenaWidth * yankFraction,
-                _leashMinX + minRange
-            );
+            if (yankedMaxX.HasValue)
+            {
+                _leashMaxX = yankedMaxX.Value;
+            }
+            else
+            {
+                float minRange = VisualSize * 2f;
+                _leashMaxX = Mathf.Max(
+                    _leashBaseMaxX - _arenaWidth * yankFraction,
+                    _leashMinX + minRange
+                );
+            }
             _leashEffectTimer = effectDuration;
         }
 

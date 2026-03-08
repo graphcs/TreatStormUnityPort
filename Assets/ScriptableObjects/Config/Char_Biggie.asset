@@ -19,6 +19,7 @@ MonoBehaviour:
   color: {r: 0.83137256, g: 0.64705884, b: 0.45490196, a: 1}
   hitboxSize: {x: 56, y: 56}
   gameplaySize: 216
+  collarOffset: {x: 22.5, y: 0}
   runSprites:
   - {fileID: -3389250483559150485, guid: e617dda0094a7294abc01f037829eea8, type: 3}
   - {fileID: -7710986185794258431, guid: e617dda0094a7294abc01f037829eea8, type: 3}
@@ -34,6 +35,7 @@ MonoBehaviour:
   - {fileID: 6347378600643516533, guid: 7601bedfa415f1746877f28884770e41, type: 3}
   - {fileID: -6390149630632296360, guid: 7601bedfa415f1746877f28884770e41, type: 3}
   - {fileID: 2573238608622480654, guid: 7601bedfa415f1746877f28884770e41, type: 3}
+  chiliReactionSprites: []
   boostSprite: {fileID: 21300000, guid: b595a697b8777c948bcd299d05cabadb, type: 3}
   portrait: {fileID: 21300000, guid: a0a50aa9a00f2f946b31a08cb50d3ee3, type: 3}
   faceCameraFlight: {fileID: 21300000, guid: 5901c50f2e30fe6409b40e425b3285d2, type: 3}

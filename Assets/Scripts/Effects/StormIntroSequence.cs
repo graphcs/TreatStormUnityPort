@@ -64,7 +64,7 @@ namespace SnackAttack.Effects
         private Sprite[] _dog2RunSprites;
         private float _dog1StartX, _dog1TargetX, _dog1CurrentX;
         private float _dog2StartX, _dog2TargetX, _dog2CurrentX;
-        private float _dogGroundY;
+        private float _dogTopY;
         private float _marchBobTimer;
         private float _lastStepX1, _lastStepX2;
         private RectTransform _dustContainer;
@@ -107,7 +107,7 @@ namespace SnackAttack.Effects
             Sprite cloudSprite1, Sprite cloudSprite2,
             Sprite titleSprite, Sprite goSprite, Sprite groundSprite,
             Sprite[] dog1RunSprites, Sprite[] dog2RunSprites,
-            float dogGroundY, float dog1Size = 216f, float dog2Size = 216f,
+            float dogTopY, float dog1Size = 216f, float dog2Size = 216f,
             float dog1TargetX = -1f, float dog2TargetX = -1f)
         {
             _root = root;
@@ -118,7 +118,7 @@ namespace SnackAttack.Effects
             _cloudSprite2 = cloudSprite2;
             _dog1RunSprites = dog1RunSprites;
             _dog2RunSprites = dog2RunSprites;
-            _dogGroundY = dogGroundY;
+            _dogTopY = dogTopY;
             _dog1Size = dog1Size * _settings.dogRenderScale;
             _dog2Size = dog2Size * _settings.dogRenderScale;
             _hasDog2 = dog2RunSprites != null && dog2RunSprites.Length > 0;
@@ -559,7 +559,7 @@ namespace SnackAttack.Effects
         {
             float x = Random.Range(_screenWidth * _settings.boltXMinFraction,
                 _screenWidth * _settings.boltXMaxFraction);
-            float strikeY = _dogGroundY + _settings.boltStrikeYOffset;
+            float strikeY = _dogTopY + Mathf.Max(_dog1Size, _dog2Size) + _settings.boltStrikeYOffset;
 
             // Create procedural lightning bolt using UILineDrawer
             var boltGo = new GameObject("Bolt");
@@ -760,7 +760,7 @@ namespace SnackAttack.Effects
             float tilt1 = Mathf.Sin(_marchBobTimer * _settings.dogBobFrequency + Mathf.PI * 0.5f)
                 * _settings.dogTiltAmplitude;
 
-            _dog1Image.rectTransform.anchoredPosition = new Vector2(_dog1CurrentX, -(_dogGroundY - _dog1Size + bob1));
+            _dog1Image.rectTransform.anchoredPosition = new Vector2(_dog1CurrentX, -(_dogTopY + bob1));
             _dog1Image.rectTransform.localRotation = Quaternion.Euler(0f, 0f, tilt1);
 
             // Dog2 faces left — flip via scale
@@ -769,20 +769,22 @@ namespace SnackAttack.Effects
                 float bob2 = Mathf.Sin(_marchBobTimer * _settings.dogBobFrequency + 1f) * _settings.dogBobAmplitude;
                 float tilt2 = Mathf.Sin(_marchBobTimer * _settings.dogBobFrequency + 1f + Mathf.PI * 0.5f)
                     * _settings.dogTiltAmplitude;
-                _dog2Image.rectTransform.anchoredPosition = new Vector2(_dog2CurrentX, -(_dogGroundY - _dog2Size + bob2));
+                _dog2Image.rectTransform.anchoredPosition = new Vector2(_dog2CurrentX, -(_dogTopY + bob2));
                 _dog2Image.rectTransform.localRotation = Quaternion.Euler(0f, 0f, tilt2);
                 _dog2Image.rectTransform.localScale = new Vector3(-1f, 1f, 1f);
             }
 
-            // Dust puffs
+            // Dust puffs (at dog feet: topY + scaled dog size)
+            float dog1FeetY = _dogTopY + _dog1Size;
             if (Mathf.Abs(_dog1CurrentX - _lastStepX1) >= _settings.dustStepDistance && t < 0.85f)
             {
-                EmitDust(_dog1CurrentX + 20f, _dogGroundY + 10f);
+                EmitDust(_dog1CurrentX + 20f, dog1FeetY + 10f);
                 _lastStepX1 = _dog1CurrentX;
             }
             if (_hasDog2 && Mathf.Abs(_dog2CurrentX - _lastStepX2) >= _settings.dustStepDistance && t < 0.85f)
             {
-                EmitDust(_dog2CurrentX + 40f, _dogGroundY + 10f);
+                float dog2FeetY = _dogTopY + _dog2Size;
+                EmitDust(_dog2CurrentX + 40f, dog2FeetY + 10f);
                 _lastStepX2 = _dog2CurrentX;
             }
             _dustPool.UpdateAll(dt);

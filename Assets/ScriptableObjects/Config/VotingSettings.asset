@@ -25,7 +25,7 @@ MonoBehaviour:
   triviaSpeedMagnitude: 2
   triviaSpeedDuration: 5
   chaosTintColor: {r: 0.8627451, g: 0.15686275, b: 0.15686275, a: 1}
-  chaosTintAlpha: 0.29411766
+  chaosTintAlpha: 0.5
   pulseCycleMs: 500
   pulseAlphaMin: 0.85
   pulseAlphaMax: 1
@@ -93,3 +93,37 @@ MonoBehaviour:
   announceTriviaWrongColor: {r: 1, g: 0.392, b: 0.392, a: 1}
   flashDuration: 0.3
   flashAlpha: 0.588
+  barMargin: 20
+  meterBarY: -45
+  barLabelYOffset: 5
+  barLabelHeight: 14
+  barLabelFontSize: 8
+  barLabelTruncateLength: 8
+  statusTruncateLength: 10
+  messageFontSize: 9
+  messageXOffset: 4
+  buttonHeight: 28
+  buttonGap: 4
+  buttonXOffset: 4
+  buttonBackgroundAlpha: 0.3
+  buttonLabelFontSize: 10
+  maxStoredMessages: 15
+  smartVoteThreshold: 0.6
+  countdownTitleColor: {r: 1, g: 0.92156863, b: 0.92156863, a: 1}
+  countdownNumberColor: {r: 1, g: 0.43137255, b: 0.43137255, a: 1}
+  liveTitleColor: {r: 1, g: 0.7058824, b: 0.7058824, a: 1}
+  optionsTextColor: {r: 1, g: 0.9019608, b: 0.78431374, a: 1}
+  tintAlphaLerpSpeed: 6
+  maxTintAlpha: 0.54901963
+  autoToggleOnColor: {r: 0.3, g: 0.8, b: 0.3, a: 1}
+  systemAutoOnColor: {r: 0.78431374, g: 0.78431374, b: 0.39215687, a: 1}
+  systemAutoOffColor: {r: 0.5882353, g: 0.5882353, b: 0.5882353, a: 1}
+  systemIncomingColor: {r: 1, g: 0.47058824, b: 0.47058824, a: 1}
+  systemTriviaColor: {r: 1, g: 0.78431374, b: 1, a: 1}
+  systemLiveColor: {r: 1, g: 0.47058824, b: 0.47058824, a: 1}
+  systemRoundInfoColor: {r: 1, g: 1, b: 0.39215687, a: 1}
+  actionExtendColor: {r: 0.19607843, g: 0.78431374, b: 0.19607843, a: 1}
+  actionExtendColor2: {r: 0.39215687, g: 1, b: 0.39215687, a: 1}
+  actionYankColor: {r: 0.78431374, g: 0.19607843, b: 0.19607843, a: 1}
+  triviaCorrectChatColor: {r: 0.39215687, g: 1, b: 0.39215687, a: 1}
+  triviaWrongChatColor: {r: 0.78431374, g: 0.39215687, b: 0.39215687, a: 1}

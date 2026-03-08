@@ -16,9 +16,10 @@ MonoBehaviour:
   displayName: Dash
   breed: Chihuahua
   baseSpeed: 1.3
-  color: {r: 0.17647059, g: 0.13725491, b: 0.11764706, a: 1}
+  color: {r: 0.1764706, g: 0.13725491, b: 0.11764706, a: 1}
   hitboxSize: {x: 48, y: 52}
   gameplaySize: 216
+  collarOffset: {x: 22.5, y: 0}
   runSprites:
   - {fileID: 3429898862577228042, guid: 20223a85f15a64f469b1176dcdb0a72e, type: 3}
   - {fileID: -4864672289176023403, guid: 20223a85f15a64f469b1176dcdb0a72e, type: 3}
@@ -33,6 +34,7 @@ MonoBehaviour:
   - {fileID: -502108284906332275, guid: 567e235d95add4f4f8296937b788a440, type: 3}
   - {fileID: 7980433700611578846, guid: 567e235d95add4f4f8296937b788a440, type: 3}
   - {fileID: -8299195445264540851, guid: 567e235d95add4f4f8296937b788a440, type: 3}
+  chiliReactionSprites: []
   boostSprite: {fileID: 21300000, guid: 18573aa58d89d9a4ca7937795e207cec, type: 3}
   portrait: {fileID: 21300000, guid: 4b87299a9180e324ea9e87061fa17b83, type: 3}
   faceCameraFlight: {fileID: 21300000, guid: b87739cc1972a7b42b8beff2b2348c3e, type: 3}

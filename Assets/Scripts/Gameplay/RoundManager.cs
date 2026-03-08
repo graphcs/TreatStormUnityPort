@@ -249,30 +249,40 @@ namespace SnackAttack.Gameplay
             float halfScreen = _settings.referenceWidth * 0.5f;
             float dog1Size = _p1CharCached != null ? _p1CharCached.gameplaySize : 216f;
             float dog2Size = _p2CharCached != null ? _p2CharCached.gameplaySize : 216f;
+
+            // Intro renders dogs at scaled size — use scaled size for position alignment
+            float scaledSize1 = dog1Size * introSettings.dogRenderScale;
+            float scaledSize2 = dog2Size * introSettings.dogRenderScale;
             float dog1TargetX, dog2TargetX;
 
             if (_isSingleDog)
             {
                 // Single dog: center of screen
-                dog1TargetX = halfScreen - dog1Size * 0.5f;
+                dog1TargetX = halfScreen - scaledSize1 * 0.5f;
                 dog2TargetX = -1f; // no second dog
             }
             else
             {
-                // Two players: center of each arena
-                float w = _settings.arenaWidth;
-                float gap = _settings.splitScreenGap;
-                float totalW = w * 2f + gap;
-                float startX = -totalW * 0.5f;
-                float p1CenterX = startX + w * 0.5f;
-                float p2CenterX = startX + w + gap + w * 0.5f;
-                dog1TargetX = p1CenterX + halfScreen - dog1Size * 0.5f;
-                dog2TargetX = p2CenterX + halfScreen - dog2Size * 0.5f;
+                // Use actual arena center positions for reliable alignment.
+                // Intro dogs use anchor/pivot (0,1) — top-left corner positioning.
+                // Dog1 (no flip): visual center = targetX + scaledSize/2
+                // Dog2 (flipped scale.x=-1 around pivot): visual center = targetX - scaledSize/2
+                float arena1CenterX = _arena1.Bounds.center.x + halfScreen;
+                float arena2CenterX = _arena2.Bounds.center.x + halfScreen;
+                dog1TargetX = arena1CenterX - scaledSize1 * 0.5f;
+                dog2TargetX = arena2CenterX + scaledSize2 * 0.5f;
             }
+
+            // Compute dog top Y from actual gameplay arena layout
+            // In gameplay, all dogs' tops are at the same Y: yMin + groundYOffset (center-anchored)
+            // Convert to top-anchored: referenceHeight/2 - (yMin + groundYOffset)
+            float margin = _settings.arenaBottomMargin;
+            float yMin = -(_settings.referenceHeight * 0.5f) + margin;
+            float dogTopFromTop = _settings.referenceHeight * 0.5f - yMin - _settings.playerGroundYOffset;
 
             _intro = _introCanvasGo.AddComponent<RoundStartIntro>();
             _intro.Initialize(introRoot, introSettings, _p1CharCached, _p2CharCached,
-                dog1TargetX, dog2TargetX);
+                dog1TargetX, dog2TargetX, dogTopFromTop);
         }
 
         private void UpdateIntro()

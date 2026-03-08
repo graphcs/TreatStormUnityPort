@@ -18,9 +18,6 @@ namespace SnackAttack.Screens
         [SerializeField] private Image _battleField1;
         [SerializeField] private Image _battleField2;
 
-        [Header("Chat Placeholder")]
-        [SerializeField] private RectTransform _chatPlaceholder;
-
         private CanvasGroup _canvasGroup;
 
         // Cloud animation
