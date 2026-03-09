@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d483c1227f6dcdb448b8faa5b49b8e7c, type: 3}
+  m_Name: UIColors
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.UIColorsSO
+  winnerColor: {r: 0.5764706, g: 0.29803923, b: 0.1882353, a: 1}
+  tieColor: {r: 1, g: 0.78431374, b: 0, a: 1}
+  roundsColor: {r: 0.3019608, g: 0.16862746, b: 0.12156863, a: 1}
+  menuNormal: {r: 0.3019608, g: 0.16862746, b: 0.12156863, a: 1}
+  menuSelected: {r: 0.5764706, g: 0.29803923, b: 0.1882353, a: 1}
+  timerColor: {r: 0.3019608, g: 0.16862746, b: 0.12156863, a: 1}
+  scoreColor: {r: 0.5764706, g: 0.29803923, b: 0.1882353, a: 1}
+  countdownColor: {r: 0.9843137, g: 0.8039216, b: 0.39215687, a: 1}
+  popupPositiveColor: {r: 0.31764707, g: 0.7058824, b: 0.2784314, a: 1}
+  popupNegativeColor: {r: 0.87058824, g: 0.38039216, b: 0.35686275, a: 1}
+  popupOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  pauseTitleColor: {r: 1, g: 0.78431374, b: 0, a: 1}
+  p1Color: {r: 0.392, g: 0.706, b: 1, a: 1}
+  p2Color: {r: 1, g: 0.471, b: 0.471, a: 1}
+  bothColor: {r: 0.784, g: 0.588, b: 1, a: 1}
+  unselectedBorder: {r: 0.235, g: 0.275, b: 0.392, a: 1}
+  highlightGold: {r: 1, g: 0.863, b: 0.314, a: 1}
+  backDefault: {r: 0.302, g: 0.169, b: 0.122, a: 1}
+  backHover: {r: 0.576, g: 0.298, b: 0.188, a: 1}
+  createDogDefault: {r: 0.784, g: 0.667, b: 0.235, a: 1}
+  createDogHover: {r: 1, g: 0.863, b: 0.314, a: 1}
+  normalRopeColor: {r: 0.545, g: 0.353, b: 0.169, a: 1}
+  extendedRopeColor: {r: 0.314, g: 0.784, b: 0.314, a: 1}
+  yankedRopeColor: {r: 0.784, g: 0.314, b: 0.314, a: 1}
+  shadowColor: {r: 0.196, g: 0.118, b: 0.078, a: 1}
+  normalHighlightColor: {r: 0.396, g: 0.263, b: 0.129, a: 1}
+  extendedHighlightColor: {r: 0.235, g: 0.706, b: 0.235, a: 1}
+  yankedHighlightColor: {r: 0.706, g: 0.235, b: 0.235, a: 1}
+  sliderBackground: {r: 1, g: 1, b: 1, a: 1}
+  festiveColors:
+  - serializedVersion: 2
+    rgba: 4283453695
+  - serializedVersion: 2
+    rgba: 4294953040
+  - serializedVersion: 2
+    rgba: 4282178815
+  - serializedVersion: 2
+    rgba: 4286119800
+  - serializedVersion: 2
+    rgba: 4291333375
+  - serializedVersion: 2
+    rgba: 4294932660
+  - serializedVersion: 2
+    rgba: 4282163455

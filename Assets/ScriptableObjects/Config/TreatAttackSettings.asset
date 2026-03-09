@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 587996ceb4b7162429e44c715c96c12f, type: 3}
+  m_Name: TreatAttackSettings
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.TreatAttackSettingsSO
+  screen:
+    width: 720
+    height: 720
+  gameplay:
+    roundDurationSeconds: 60
+    baseFallSpeed: 150
+    fallSpeedIncreasePerLevel: 20
+    spawnIntervalSeconds: 1.5
+    minSpawnIntervalSeconds: 0.5
+  dog:
+    groundY: 650
+    width: 64
+    height: 64
+    moveSpeed: 300
+    leashAnchorX: 0
+  leash:
+    defaultMinX: 50
+    defaultMaxX: 550
+    extendedMaxX: 670
+    yankedMaxX: 350
+    effectDurationSeconds: 5
+  treats:
+    treatTypes:
+    - id: normal
+      name: Normal Treat
+      pointValue: 100
+      spawnWeight: 0.6
+      spawnBiasRight: 0
+      color: {r: 1, g: 0.84313726, b: 0, a: 1}
+    - id: power
+      name: Power Treat
+      pointValue: 500
+      spawnWeight: 0.2
+      spawnBiasRight: 0
+      color: {r: 1, g: 0, b: 1, a: 1}
+    - id: bad
+      name: Bad Treat
+      pointValue: -200
+      spawnWeight: 0.2
+      spawnBiasRight: 0
+      color: {r: 1, g: 0, b: 0, a: 1}
+    size: {x: 48, y: 48}
+  voting:
+    windowDurationSeconds: 10
+    cooldownSeconds: 5
+    extendCommands: []
+    yankCommands: []
+  ui:
+    meterHeight: 40
+    meterMargin: 10
+    scoreFontSize: 32
+    timerFontSize: 28

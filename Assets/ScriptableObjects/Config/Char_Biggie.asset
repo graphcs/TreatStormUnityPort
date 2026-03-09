@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb04b79e2055bf349af4076977bd3810, type: 3}
+  m_Name: Char_Biggie
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.CharacterSO
+  id: biggie
+  displayName: Biggie
+  breed: Bulldog
+  baseSpeed: 0.9
+  color: {r: 0.83137256, g: 0.64705884, b: 0.45490196, a: 1}
+  hitboxSize: {x: 56, y: 56}
+  gameplaySize: 216
+  collarOffset: {x: 22.5, y: 0}
+  runSprites:
+  - {fileID: -3389250483559150485, guid: e617dda0094a7294abc01f037829eea8, type: 3}
+  - {fileID: -7710986185794258431, guid: e617dda0094a7294abc01f037829eea8, type: 3}
+  - {fileID: -8846318618966880855, guid: e617dda0094a7294abc01f037829eea8, type: 3}
+  eatSprites:
+  - {fileID: 6084510631567173391, guid: 661b4de277a487944a730dba1f67a450, type: 3}
+  - {fileID: -1476574044719982908, guid: 661b4de277a487944a730dba1f67a450, type: 3}
+  - {fileID: -5310011982606222745, guid: 661b4de277a487944a730dba1f67a450, type: 3}
+  walkSprites:
+  - {fileID: 6186436918504091546, guid: 7601bedfa415f1746877f28884770e41, type: 3}
+  - {fileID: 2534224449792757628, guid: 7601bedfa415f1746877f28884770e41, type: 3}
+  - {fileID: 3846577086766961044, guid: 7601bedfa415f1746877f28884770e41, type: 3}
+  - {fileID: 6347378600643516533, guid: 7601bedfa415f1746877f28884770e41, type: 3}
+  - {fileID: -6390149630632296360, guid: 7601bedfa415f1746877f28884770e41, type: 3}
+  - {fileID: 2573238608622480654, guid: 7601bedfa415f1746877f28884770e41, type: 3}
+  chiliReactionSprites: []
+  boostSprite: {fileID: 21300000, guid: b595a697b8777c948bcd299d05cabadb, type: 3}
+  portrait: {fileID: 21300000, guid: a0a50aa9a00f2f946b31a08cb50d3ee3, type: 3}
+  faceCameraFlight: {fileID: 21300000, guid: 5901c50f2e30fe6409b40e425b3285d2, type: 3}

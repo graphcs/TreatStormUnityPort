@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb04b79e2055bf349af4076977bd3810, type: 3}
+  m_Name: Char_Prissy
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.CharacterSO
+  id: prissy
+  displayName: Prissy
+  breed: Poodle
+  baseSpeed: 1.1
+  color: {r: 1, g: 0.7137255, b: 0.75686276, a: 1}
+  hitboxSize: {x: 52, y: 56}
+  gameplaySize: 173
+  collarOffset: {x: 22.5, y: 0}
+  runSprites:
+  - {fileID: -7263590584092273517, guid: d3d433551e75aab40a4be1b624dc9ea5, type: 3}
+  - {fileID: -961745448813954063, guid: d3d433551e75aab40a4be1b624dc9ea5, type: 3}
+  - {fileID: 3073082544958050234, guid: d3d433551e75aab40a4be1b624dc9ea5, type: 3}
+  eatSprites:
+  - {fileID: -4794221447958715862, guid: 39488a6f9534375458919eef61b9589b, type: 3}
+  - {fileID: 6151471171651017274, guid: 39488a6f9534375458919eef61b9589b, type: 3}
+  - {fileID: 758223658751975013, guid: 39488a6f9534375458919eef61b9589b, type: 3}
+  walkSprites:
+  - {fileID: -3897938587639498824, guid: 95ee8698593158f4c9daf5a204676358, type: 3}
+  - {fileID: -156006487113385248, guid: 95ee8698593158f4c9daf5a204676358, type: 3}
+  - {fileID: 3869051295276268121, guid: 95ee8698593158f4c9daf5a204676358, type: 3}
+  - {fileID: -7813658989531640521, guid: 95ee8698593158f4c9daf5a204676358, type: 3}
+  - {fileID: -5018975597798765464, guid: 95ee8698593158f4c9daf5a204676358, type: 3}
+  - {fileID: -8650765595297198735, guid: 95ee8698593158f4c9daf5a204676358, type: 3}
+  chiliReactionSprites: []
+  boostSprite: {fileID: 21300000, guid: 151f20e0ea08f4c42ba3435b877797b9, type: 3}
+  portrait: {fileID: 21300000, guid: 5149ca35c23865f47b74109972448db7, type: 3}
+  faceCameraFlight: {fileID: 21300000, guid: f8c903329e8dd76488d36038432c4604, type: 3}

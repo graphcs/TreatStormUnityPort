@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb04b79e2055bf349af4076977bd3810, type: 3}
+  m_Name: Char_Dash
+  m_EditorClassIdentifier: Assembly-CSharp::SnackAttack.Core.CharacterSO
+  id: dash
+  displayName: Dash
+  breed: Chihuahua
+  baseSpeed: 1.3
+  color: {r: 0.1764706, g: 0.13725491, b: 0.11764706, a: 1}
+  hitboxSize: {x: 48, y: 52}
+  gameplaySize: 216
+  collarOffset: {x: 22.5, y: 0}
+  runSprites:
+  - {fileID: 3429898862577228042, guid: 20223a85f15a64f469b1176dcdb0a72e, type: 3}
+  - {fileID: -4864672289176023403, guid: 20223a85f15a64f469b1176dcdb0a72e, type: 3}
+  - {fileID: 2443472257566474815, guid: 20223a85f15a64f469b1176dcdb0a72e, type: 3}
+  eatSprites:
+  - {fileID: 1411594855088039678, guid: 7b91b04634f1aaa43a88ed049ca8b9fe, type: 3}
+  - {fileID: 6744921102375062132, guid: 7b91b04634f1aaa43a88ed049ca8b9fe, type: 3}
+  - {fileID: -5485825364115554127, guid: 7b91b04634f1aaa43a88ed049ca8b9fe, type: 3}
+  walkSprites:
+  - {fileID: -9120101471197623881, guid: 567e235d95add4f4f8296937b788a440, type: 3}
+  - {fileID: -814487846430867751, guid: 567e235d95add4f4f8296937b788a440, type: 3}
+  - {fileID: -502108284906332275, guid: 567e235d95add4f4f8296937b788a440, type: 3}
+  - {fileID: 7980433700611578846, guid: 567e235d95add4f4f8296937b788a440, type: 3}
+  - {fileID: -8299195445264540851, guid: 567e235d95add4f4f8296937b788a440, type: 3}
+  chiliReactionSprites: []
+  boostSprite: {fileID: 21300000, guid: 18573aa58d89d9a4ca7937795e207cec, type: 3}
+  portrait: {fileID: 21300000, guid: 4b87299a9180e324ea9e87061fa17b83, type: 3}
+  faceCameraFlight: {fileID: 21300000, guid: b87739cc1972a7b42b8beff2b2348c3e, type: 3}
