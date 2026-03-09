@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Utilities.Inputs;
+using SnackAttack.Avatar;
 
 namespace SnackAttack.Core
 {
@@ -97,6 +98,9 @@ namespace SnackAttack.Core
         {
             if (!InputsManager.Started)
                 InputsManager.Start();
+
+            // Load custom avatars from persistent storage
+            AvatarPersistence.LoadAllCustomAvatars(characterDatabase);
         }
 
         private void Update()

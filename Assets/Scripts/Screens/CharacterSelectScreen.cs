@@ -410,6 +410,24 @@ namespace SnackAttack.Screens
                 }
             }
 
+            // Check right-click on cards for showcase
+            for (int i = 0; _cardRects != null && i < _cardRects.Count; i++)
+            {
+                if (RectTransformUtility.RectangleContainsScreenPoint(_cardRects[i], mousePos, null))
+                {
+                    if (InputsManager.InputMouseButtonUp(1))
+                    {
+                        var showcaseData = new Dictionary<string, object>
+                        {
+                            { "character", _characters[i] }
+                        };
+                        ChangeState(GameState.AvatarShowcase, showcaseData);
+                        return;
+                    }
+                    break;
+                }
+            }
+
             // Check create dog text
             if (createDogText != null)
             {
@@ -419,7 +437,12 @@ namespace SnackAttack.Screens
                     UpdateCreateDogVisual(true);
                     if (InputsManager.InputMouseButtonUp(0))
                     {
-                        ChangeState(GameState.UploadAvatar);
+                        var uploadData = new Dictionary<string, object>
+                        {
+                            { "mode", _gameMode },
+                            { "vs_ai", _vsAi }
+                        };
+                        ChangeState(GameState.UploadAvatar, uploadData);
                     }
                     return;
                 }

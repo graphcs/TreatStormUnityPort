@@ -44,6 +44,33 @@ namespace SnackAttack.Core
         [Header("Settings")]
         public Color sliderBackground = Color.white;  // #DCA556
 
+        [Header("Avatar Upload")]
+        public Color avatarBgColor = new Color32(20, 30, 60, 255);
+        public Color avatarAccentGold = new Color32(255, 200, 80, 255);
+        public Color avatarInputActiveBg = new Color32(60, 80, 130, 255);
+        public Color avatarInputInactiveBg = new Color32(40, 50, 80, 255);
+        public Color avatarButtonNormal = new Color32(80, 140, 80, 255);
+        public Color avatarButtonHover = new Color32(100, 180, 100, 255);
+        public Color avatarBackNormal = new Color32(100, 70, 60, 255);
+        public Color avatarBackHover = new Color32(130, 100, 80, 255);
+        public Color avatarSuccessColor = new Color32(100, 255, 100, 255);
+        public Color avatarErrorColor = new Color32(255, 100, 100, 255);
+        public Color avatarProgressFill = new Color32(100, 180, 255, 255);
+        public Color avatarHintColor = new Color32(120, 120, 140, 255);
+        public Color avatarDisabledBtn = new Color32(60, 60, 80, 255);
+        public Color avatarApiLinkColor = new Color32(150, 200, 255, 255);
+
+        [Header("Avatar Showcase")]
+        public Color showcaseOverlayColor = new Color32(0, 0, 0, 120);
+        public Color showcaseAccentGold = new Color32(255, 200, 60, 255);
+        public Color showcaseSubtitleColor = new Color32(180, 160, 120, 255);
+        public Color showcaseStatBarBg = new Color32(40, 35, 60, 255);
+        public Color showcaseStatBarFill = new Color32(255, 200, 60, 255);
+        public Color showcaseStatsPanelBg = new Color32(20, 15, 40, 180);
+        public Color showcaseBackNormal = new Color32(147, 76, 48, 255);
+        public Color showcaseBackHover = new Color32(200, 120, 70, 255);
+        public Color showcaseFooterColor = new Color32(100, 80, 60, 255);
+
         [Header("Celebration")]
         public Color32[] festiveColors = new Color32[]
         {

@@ -68,6 +68,21 @@ namespace SnackAttack.Core
         public float selectorOffset = 6f;
         public float selectorPadding = 10f;
 
+        [Header("Upload Avatar")]
+        public float avatarTitleY = -100f;
+        public float avatarNameLabelY = -288f;
+        public float avatarNameInputY = -332f;
+        public Vector2 avatarNameInputSize = new(400f, 50f);
+        public float avatarPhotoAreaY = -440f;
+        public Vector2 avatarPlaceholderSize = new(300f, 150f);
+        public float avatarBrowseBtnY = -660f;
+        public Vector2 avatarBrowseBtnSize = new(200f, 45f);
+        public float avatarGenerateBtnY = -740f;
+        public Vector2 avatarGenerateBtnSize = new(300f, 55f);
+        public float avatarBackBtnY = -920f;
+        public Vector2 avatarBackBtnSize = new(160f, 40f);
+        public Vector2 avatarProgressBarSize = new(500f, 30f);
+
         [Header("HUD")]
         public Vector2 popupSize = new(200f, 50f);
         public float outlineWidth = 0.25f;
